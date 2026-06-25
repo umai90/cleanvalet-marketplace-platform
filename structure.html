@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CleanValet — Program Structure & Architecture</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{
+  --navy:#0B1F3A;--navy-l:#162d52;--navy-d:#071528;
+  --gold:#C9A84C;--gold-l:#D9BC72;--gold-d:#A8882E;
+  --white:#fff;--bg:#F8F6F1;--border:#E4E4E7;
+  --text:#27272A;--muted:#71717A;--sub:#A1A1AA;
+  --success:#059669;--info:#3b82f6;--warn:#d97706;--danger:#ef4444;
+  --font-d:'Playfair Display',Georgia,serif;
+  --font-b:'DM Sans',system-ui,sans-serif;
+  --font-m:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);color:var(--text);background:var(--bg);line-height:1.65;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:#D4D4D8;border-radius:10px}
+
+/* ── LAYOUT ── */
+.container{max-width:1100px;margin:0 auto;padding:0 28px}
+section{padding:80px 0}
+
+/* ── TOPBAR ── */
+#topbar{background:var(--navy-d);padding:14px 0;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,.06)}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.tl{display:flex;align-items:center;gap:10px;font-family:var(--font-d);font-size:1.1rem;font-weight:700;color:var(--white)}
+.tl span{color:var(--gold)}
+.tl svg{width:20px;height:20px}
+.tb-links{display:flex;gap:8px;flex-wrap:wrap}
+.tb-link{padding:7px 14px;border-radius:7px;font-size:.78rem;font-weight:600;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.75);transition:all .22s;cursor:pointer}
+.tb-link:hover,.tb-link.active{background:rgba(201,168,76,.15);border-color:var(--gold);color:var(--gold)}
+
+/* ── HERO ── */
+#hero{background:var(--navy);padding:80px 0 72px;position:relative;overflow:hidden}
+#hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 6px),repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 6px)}
+.hero-tag{display:inline-flex;align-items:center;gap:7px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.25);color:var(--gold);padding:6px 16px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:22px}
+.hero-title{font-family:var(--font-d);font-size:clamp(1.8rem,4vw,2.9rem);font-weight:700;color:var(--white);line-height:1.15;margin-bottom:14px}
+.hero-title em{color:var(--gold);font-style:italic}
+.hero-sub{font-size:1rem;color:rgba(255,255,255,.6);max-width:540px;margin-bottom:36px;line-height:1.7}
+.hero-files{display:flex;gap:12px;flex-wrap:wrap}
+.hf-card{padding:12px 18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:.84rem;font-weight:500;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:8px;transition:all .25s;cursor:pointer}
+.hf-card:hover{background:rgba(201,168,76,.12);border-color:var(--gold);color:var(--gold)}
+.hf-card .ext{font-family:var(--font-m);font-size:.76rem;background:rgba(201,168,76,.15);color:var(--gold);padding:2px 8px;border-radius:4px}
+
+/* ── SECTION HEADERS ── */
+.sec-tag{font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.sec-title{font-family:var(--font-d);font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;color:var(--navy);line-height:1.18;margin-bottom:10px}
+.sec-sub{font-size:.96rem;color:var(--muted);line-height:1.7;max-width:560px;margin-bottom:40px}
+
+/* ── FILE TREE ── */
+#files{background:var(--bg)}
+.file-tree-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.ft-card{background:var(--white);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);border:1.5px solid var(--border);transition:transform .25s,box-shadow .25s}
+.ft-card:hover{transform:translateY(-4px);box-shadow:0 10px 32px rgba(0,0,0,.12)}
+.ft-head{padding:18px 20px;display:flex;align-items:center;gap:12px}
+.ft-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.ft-nm{font-family:var(--font-m);font-size:.9rem;font-weight:600;color:var(--navy);margin-bottom:2px}
+.ft-desc{font-size:.75rem;color:var(--muted)}
+.ft-body{padding:0 20px 20px;border-top:1px solid var(--bg)}
+.ft-sections{list-style:none;display:flex;flex-direction:column;gap:0}
+.ft-section{padding:8px 0;border-bottom:1px solid var(--bg);display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--text)}
+.ft-section:last-child{border-bottom:none}
+.ft-section .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.ft-section .sn{font-weight:600;color:var(--navy);margin-bottom:1px}
+.ft-section .sd{font-size:.72rem;color:var(--muted)}
+.ft-stats{display:flex;gap:12px;padding:12px 20px;background:var(--bg);flex-wrap:wrap}
+.ft-stat{font-size:.72rem;color:var(--muted);font-weight:500}
+.ft-stat strong{color:var(--navy)}
+
+/* ── FLOW DIAGRAM ── */
+#flow{background:var(--white)}
+.flow-wrap{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0;position:relative;padding:20px 0}
+.flow-node{display:flex;flex-direction:column;align-items:center;text-align:center;position:relative}
+.fn-circle{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;border:3px solid transparent;transition:all .3s}
+.fn-circle:hover{transform:scale(1.1)}
+.fn-label{font-size:.76rem;font-weight:700;color:var(--navy);margin-top:10px;max-width:80px;line-height:1.3}
+.fn-sub{font-size:.65rem;color:var(--muted);margin-top:2px;max-width:80px}
+.flow-arrow{display:flex;align-items:center;padding:0 8px;color:var(--gold);font-size:1.3rem;margin-bottom:22px;flex-shrink:0}
+/* Mobile flow - vertical */
+@media(max-width:700px){
+  .flow-wrap{flex-direction:column;gap:4px}
+  .flow-arrow{transform:rotate(90deg);padding:4px 0;margin-bottom:0}
+}
+
+/* ── TWO-SIDED MARKETPLACE ── */
+#marketplace{background:var(--bg)}
+.mkt-split{display:grid;grid-template-columns:1fr auto 1fr;gap:32px;align-items:stretch}
+.mkt-side{background:var(--white);border-radius:16px;padding:28px 24px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.mkt-side.customer{border-top:4px solid var(--info)}
+.mkt-side.provider{border-top:4px solid var(--success)}
+.mkt-center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 8px}
+.mkt-platform{background:var(--navy);border-radius:16px;padding:22px 18px;text-align:center;min-width:140px}
+.mkt-side h3,.mkt-platform h3{font-family:var(--font-d);font-size:1rem;font-weight:700;margin-bottom:14px}
+.mkt-side.customer h3{color:var(--info)}
+.mkt-side.provider h3{color:var(--success)}
+.mkt-platform h3{color:var(--gold)}
+.mkt-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.mkt-list li{display:flex;align-items:flex-start;gap:7px;font-size:.82rem;color:var(--text);line-height:1.4}
+.mkt-list li::before{content:'→';color:var(--gold);font-weight:700;flex-shrink:0;margin-top:1px}
+.mkt-platform .mkt-list li{color:rgba(255,255,255,.75)}
+.mkt-platform .mkt-list li::before{content:'✓'}
+.arrow-lr{font-size:1.4rem;color:var(--gold);text-align:center}
+.comm-pill{background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:5px 14px;border-radius:100px;font-size:.76rem;font-weight:700;text-align:center;margin-top:8px;display:block}
+
+/* ── SECTION MAP (index.html) ── */
+#sitemap{background:var(--white)}
+.page-stack{display:flex;flex-direction:column;gap:0;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.1);border:1.5px solid var(--border)}
+.ps-item{display:flex;align-items:stretch;border-bottom:1px solid var(--border);transition:background .2s}
+.ps-item:last-child{border-bottom:none}
+.ps-item:hover{background:#FAFAFA}
+.ps-num{width:52px;background:var(--navy);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:1.1rem;font-weight:700;color:rgba(255,255,255,.25);flex-shrink:0}
+.ps-icon{width:52px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;background:rgba(201,168,76,.06)}
+.ps-body{flex:1;padding:14px 18px}
+.ps-name{font-weight:700;font-size:.9rem;color:var(--navy);margin-bottom:3px}
+.ps-desc{font-size:.78rem;color:var(--muted);line-height:1.5}
+.ps-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.ps-tag{padding:2px 9px;border-radius:100px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.tag-html{background:rgba(239,68,68,.08);color:#dc2626}
+.tag-css{background:rgba(59,130,246,.08);color:#2563eb}
+.tag-js{background:rgba(245,158,11,.08);color:#d97706}
+.tag-int{background:rgba(5,150,105,.08);color:#059669}
+.ps-right{width:100px;display:flex;align-items:center;justify-content:flex-end;padding:14px 18px;flex-shrink:0}
+.ps-id{font-family:var(--font-m);font-size:.68rem;color:var(--sub);background:var(--bg);padding:3px 8px;border-radius:5px}
+
+/* ── ADMIN PANEL MAP ── */
+#adminmap{background:var(--bg)}
+.admin-panels{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ap-card{background:var(--white);border-radius:14px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.07);border-left:4px solid transparent;transition:transform .25s,box-shadow .25s}
+.ap-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.ap-icon{font-size:1.6rem;margin-bottom:10px}
+.ap-name{font-family:var(--font-d);font-size:.96rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.ap-desc{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.ap-features{list-style:none;display:flex;flex-direction:column;gap:4px}
+.ap-features li{font-size:.74rem;color:var(--text);display:flex;align-items:flex-start;gap:6px;line-height:1.4}
+.ap-features li::before{content:'·';color:var(--gold);font-weight:700;font-size:1rem;line-height:1;flex-shrink:0}
+
+/* ── DATA MODELS ── */
+#datamodels{background:var(--white)}
+.models-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.dm-card{background:var(--bg);border-radius:14px;overflow:hidden;border:1.5px solid var(--border)}
+.dm-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.dm-head h3{font-family:var(--font-m);font-size:.9rem;font-weight:600;color:var(--white)}
+.dm-count{font-size:.7rem;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);padding:2px 10px;border-radius:100px;font-weight:600}
+.dm-fields{padding:0 18px 14px}
+.dm-field{display:flex;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:.79rem}
+.dm-field:last-child{border-bottom:none}
+.dm-fk{font-family:var(--font-m);color:var(--navy);font-weight:600;flex:1}
+.dm-ft{font-family:var(--font-m);font-size:.68rem;padding:1px 7px;border-radius:4px;font-weight:500;flex-shrink:0}
+.t-str{background:rgba(59,130,246,.1);color:#2563eb}
+.t-num{background:rgba(5,150,105,.1);color:#059669}
+.t-bool{background:rgba(245,158,11,.1);color:#d97706}
+.t-enum{background:rgba(139,92,246,.1);color:#7c3aed}
+.dm-fv{font-size:.7rem;color:var(--sub);flex:1;text-align:right}
+
+/* ── JS FEATURES ── */
+#jsfeatures{background:var(--bg)}
+.js-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.js-card{background:var(--white);border-radius:14px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.js-card-title{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.js-card-title h3{font-family:var(--font-d);font-size:.96rem;font-weight:700;color:var(--navy)}
+.js-tag{font-size:.66rem;font-weight:700;padding:2px 9px;border-radius:100px;background:rgba(245,158,11,.1);color:#d97706;text-transform:uppercase;letter-spacing:.06em}
+.js-fn-list{display:flex;flex-direction:column;gap:6px}
+.js-fn{display:flex;align-items:flex-start;gap:8px;padding:6px 10px;background:var(--bg);border-radius:8px}
+.js-fn-name{font-family:var(--font-m);font-size:.76rem;font-weight:600;color:var(--navy);flex-shrink:0}
+.js-fn-desc{font-size:.74rem;color:var(--muted);line-height:1.4}
+
+/* ── COMMISSION MODEL ── */
+#commission{background:var(--navy);position:relative;overflow:hidden}
+#commission::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,168,76,.018) 40px,rgba(201,168,76,.018) 80px)}
+.comm-title{font-family:var(--font-d);font-size:clamp(1.4rem,3vw,2rem);font-weight:700;color:var(--white);margin-bottom:8px}
+.comm-sub{font-size:.96rem;color:rgba(255,255,255,.55);margin-bottom:44px}
+.comm-flow{display:flex;align-items:stretch;gap:0;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;flex-wrap:wrap}
+.cf-block{flex:1;min-width:160px;padding:28px 24px;position:relative;text-align:center}
+.cf-block+.cf-block::before{content:'→';position:absolute;left:-12px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:1.4rem;font-weight:700}
+.cf-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.35);margin-bottom:8px}
+.cf-val{font-family:var(--font-d);font-size:1.5rem;font-weight:700;color:var(--white);margin-bottom:4px}
+.cf-val.gold{color:var(--gold)}
+.cf-val.success{color:#6ee7b7}
+.cf-desc{font-size:.74rem;color:rgba(255,255,255,.4);line-height:1.4}
+.comm-tiers-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px}
+.ct{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:20px;text-align:center}
+.ct.featured{border-color:var(--gold);background:rgba(201,168,76,.08)}
+.ct-name{font-family:var(--font-d);font-size:1rem;font-weight:700;color:var(--white);margin-bottom:6px}
+.ct-rate{font-size:2rem;font-weight:700;color:var(--gold);font-family:var(--font-d);line-height:1}
+.ct-unit{font-size:.8rem;color:rgba(255,255,255,.4)}
+.ct-desc{font-size:.76rem;color:rgba(255,255,255,.45);margin-top:8px;line-height:1.5}
+
+/* ── TECH STACK ── */
+#techstack{background:var(--bg)}
+.tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.tech-card{background:var(--white);border-radius:14px;padding:20px 18px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.07);transition:transform .25s,box-shadow .25s}
+.tech-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.tech-icon{font-size:2rem;margin-bottom:10px}
+.tech-name{font-family:var(--font-d);font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:4px}
+.tech-desc{font-size:.75rem;color:var(--muted);line-height:1.5}
+
+/* ── FOOTER ── */
+#foot{background:var(--navy-d);padding:40px 0;text-align:center}
+#foot p{font-size:.82rem;color:rgba(255,255,255,.3)}
+#foot strong{color:var(--gold)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .file-tree-wrap{grid-template-columns:1fr}
+  .mkt-split{grid-template-columns:1fr;gap:16px}
+  .mkt-center{flex-direction:row;padding:0}
+  .arrow-lr{transform:rotate(90deg)}
+  .admin-panels{grid-template-columns:1fr 1fr}
+  .models-grid{grid-template-columns:1fr}
+  .js-grid{grid-template-columns:1fr}
+  .comm-tiers-wrap{grid-template-columns:1fr}
+  .tech-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .container{padding:0 16px}
+  section{padding:56px 0}
+  .file-tree-wrap,.admin-panels,.tech-grid{grid-template-columns:1fr}
+  .comm-flow{flex-direction:column}
+  .cf-block+.cf-block::before{content:'↓';left:50%;top:-12px;transform:translateX(-50%)}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav id="topbar">
+  <div class="container">
+    <div class="topbar-inner">
+      <div class="tl">
+        <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 3.5C14 3.5 10.5 5.2 10.5 8C10.5 10.2 12.1 11.5 14 11.5C15.9 11.5 17.5 10.2 17.5 8C17.5 5.2 14 3.5 14 3.5Z" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14 11.5L3.5 20.5C2.5 21.5 2.5 22.5 3.5 23.5H24.5C25.5 22.5 25.5 21.5 24.5 20.5L14 11.5Z" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="14" cy="7.5" r="1.2" fill="#C9A84C"/>
+        </svg>
+        Clean<span>Valet</span> — Architecture
+      </div>
+      <div class="tb-links">
+        <a class="tb-link" href="#files">Files</a>
+        <a class="tb-link" href="#flow">Order Flow</a>
+        <a class="tb-link" href="#marketplace">Marketplace</a>
+        <a class="tb-link" href="#sitemap">Site Sections</a>
+        <a class="tb-link" href="#adminmap">Admin Panels</a>
+        <a class="tb-link" href="#datamodels">Data Models</a>
+        <a class="tb-link" href="#commission">Commission</a>
+        <a class="tb-link" href="index.html" style="border-color:var(--gold);color:var(--gold)">↗ Live Site</a>
+        <a class="tb-link" href="admin.html" style="border-color:var(--gold);color:var(--gold)">↗ Admin</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-tag">📐 Program Architecture Documentation</div>
+    <h1 class="hero-title">CleanValet — <em>How It's Built</em></h1>
+    <p class="hero-sub">A complete visual map of the CleanValet platform — every file, section, data model, user flow, and JavaScript feature explained in one place.</p>
+    <div class="hero-files">
+      <a href="index.html" class="hf-card">🌐 <span>index</span><span class="ext">.html</span> — Main Marketplace</a>
+      <a href="admin.html" class="hf-card">⚙️ <span>admin</span><span class="ext">.html</span> — Admin Panel</a>
+      <div class="hf-card" style="cursor:default;opacity:.7">📐 <span>structure</span><span class="ext">.html</span> — This Document</div>
+    </div>
+  </div>
+</section>
+
+<!-- FILE STRUCTURE -->
+<section id="files">
+  <div class="container">
+    <div class="sec-tag">Project Files</div>
+    <h2 class="sec-title">3-File Architecture</h2>
+    <p class="sec-sub">The entire platform runs as three standalone HTML files. No build tools, no server required — open any file in a browser and it works.</p>
+    <div class="file-tree-wrap">
+
+      <!-- index.html -->
+      <div class="ft-card">
+        <div class="ft-head">
+          <div class="ft-icon" style="background:rgba(11,31,58,.08)">🌐</div>
+          <div>
+            <div class="ft-nm">index.html</div>
+            <div class="ft-desc">Customer-facing marketplace website</div>
+          </div>
+        </div>
+        <div class="ft-body">
+          <ul class="ft-sections">
+            <li class="ft-section"><span class="dot" style="background:#0B1F3A"></span><div><div class="sn">Navigation Bar</div><div class="sd">Sticky nav, hamburger, CTAs</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#C9A84C"></span><div><div class="sn">Hero + Booking Widget</div><div class="sd">4-field form with validation</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#0B1F3A"></span><div><div class="sn">How It Works</div><div class="sd">3-step animated cards</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#C9A84C"></span><div><div class="sn">Services Grid</div><div class="sd">6 services, tab filter</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#059669"></span><div><div class="sn">Stats Bar</div><div class="sd">Animated number counters</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#0B1F3A"></span><div><div class="sn">Provider Listings</div><div class="sd">4 provider cards with ratings</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#C9A84C"></span><div><div class="sn">For Providers</div><div class="sd">Benefits, CSS illustration</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#0B1F3A"></span><div><div class="sn">Pricing Table</div><div class="sd">Commission tier breakdown</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#C9A84C"></span><div><div class="sn">Testimonials</div><div class="sd">2 customer + 1 provider</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#3b82f6"></span><div><div class="sn">Order Tracking</div><div class="sd">5-stage live tracker</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#0B1F3A"></span><div><div class="sn">Dual CTA + Footer</div><div class="sd">Sign-up split + 5-col footer</div></div></li>
+          </ul>
+        </div>
+        <div class="ft-stats">
+          <span class="ft-stat">Lines: <strong>~1,500</strong></span>
+          <span class="ft-stat">Sections: <strong>11</strong></span>
+          <span class="ft-stat">JS Features: <strong>8</strong></span>
+        </div>
+      </div>
+
+      <!-- admin.html -->
+      <div class="ft-card">
+        <div class="ft-head">
+          <div class="ft-icon" style="background:rgba(201,168,76,.1)">⚙️</div>
+          <div>
+            <div class="ft-nm">admin.html</div>
+            <div class="ft-desc">Admin control panel (password protected)</div>
+          </div>
+        </div>
+        <div class="ft-body">
+          <ul class="ft-sections">
+            <li class="ft-section"><span class="dot" style="background:#ef4444"></span><div><div class="sn">Login Screen</div><div class="sd">Password gate (admin123)</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#0B1F3A"></span><div><div class="sn">Sidebar Navigation</div><div class="sd">7 panel links + user info</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#C9A84C"></span><div><div class="sn">Dashboard</div><div class="sd">Stats, charts, quick actions</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#3b82f6"></span><div><div class="sn">Orders Panel</div><div class="sd">Full table, status editor</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#059669"></span><div><div class="sn">Providers Panel</div><div class="sd">Approve, suspend, commission</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#8b5cf6"></span><div><div class="sn">Customers Panel</div><div class="sd">Block/unblock, search</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#C9A84C"></span><div><div class="sn">Revenue & Payouts</div><div class="sd">Charts, payout processing</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#0B1F3A"></span><div><div class="sn">Services & Pricing</div><div class="sd">Inline price editor, toggles</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#d97706"></span><div><div class="sn">Platform Settings</div><div class="sd">Commission tiers, city manager</div></div></li>
+          </ul>
+        </div>
+        <div class="ft-stats">
+          <span class="ft-stat">Lines: <strong>~1,350</strong></span>
+          <span class="ft-stat">Panels: <strong>7</strong></span>
+          <span class="ft-stat">Modals: <strong>4</strong></span>
+        </div>
+      </div>
+
+      <!-- structure.html -->
+      <div class="ft-card">
+        <div class="ft-head">
+          <div class="ft-icon" style="background:rgba(59,130,246,.08)">📐</div>
+          <div>
+            <div class="ft-nm">structure.html</div>
+            <div class="ft-desc">Architecture documentation (this page)</div>
+          </div>
+        </div>
+        <div class="ft-body">
+          <ul class="ft-sections">
+            <li class="ft-section"><span class="dot" style="background:#3b82f6"></span><div><div class="sn">File Overview</div><div class="sd">All 3 files and their purpose</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#3b82f6"></span><div><div class="sn">Order Flow Diagram</div><div class="sd">8-stage order lifecycle</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#3b82f6"></span><div><div class="sn">Two-Sided Marketplace</div><div class="sd">Customer ↔ Platform ↔ Provider</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#3b82f6"></span><div><div class="sn">Site Section Map</div><div class="sd">Every section of index.html</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#3b82f6"></span><div><div class="sn">Admin Panel Map</div><div class="sd">Every panel of admin.html</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#3b82f6"></span><div><div class="sn">Data Models</div><div class="sd">Order, Provider, Customer, Service</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#3b82f6"></span><div><div class="sn">JS Features</div><div class="sd">All interactive functions listed</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#3b82f6"></span><div><div class="sn">Commission Model</div><div class="sd">How money flows through platform</div></div></li>
+            <li class="ft-section"><span class="dot" style="background:#3b82f6"></span><div><div class="sn">Tech Stack</div><div class="sd">HTML, CSS, Vanilla JS breakdown</div></div></li>
+          </ul>
+        </div>
+        <div class="ft-stats">
+          <span class="ft-stat">Lines: <strong>~700</strong></span>
+          <span class="ft-stat">Sections: <strong>9</strong></span>
+          <span class="ft-stat">Diagrams: <strong>6</strong></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ORDER FLOW -->
+<section id="flow" style="background:var(--white)">
+  <div class="container">
+    <div class="sec-tag">Order Lifecycle</div>
+    <h2 class="sec-title">How an Order Moves Through the System</h2>
+    <p class="sec-sub">From customer booking to provider payout — 8 stages, every step tracked.</p>
+    <div class="flow-wrap">
+
+      <div class="flow-node">
+        <div class="fn-circle" style="background:rgba(99,102,241,.1);border-color:#6366f1">📱</div>
+        <div class="fn-label">Customer Books</div>
+        <div class="fn-sub">index.html booking widget</div>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="fn-circle" style="background:rgba(201,168,76,.1);border-color:var(--gold)">✅</div>
+        <div class="fn-label">Order Confirmed</div>
+        <div class="fn-sub">Provider assigned, ID issued</div>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="fn-circle" style="background:rgba(139,92,246,.1);border-color:#8b5cf6">🚗</div>
+        <div class="fn-label">Pickup</div>
+        <div class="fn-sub">Provider collects from door</div>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="fn-circle" style="background:rgba(245,158,11,.1);border-color:#d97706">🧺</div>
+        <div class="fn-label">Being Cleaned</div>
+        <div class="fn-sub">Professional cleaning</div>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="fn-circle" style="background:rgba(59,130,246,.1);border-color:#3b82f6">🔍</div>
+        <div class="fn-label">Quality Check</div>
+        <div class="fn-sub">Inspection & packaging</div>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="fn-circle" style="background:rgba(16,185,129,.1);border-color:#10b981">🚚</div>
+        <div class="fn-label">Delivered</div>
+        <div class="fn-sub">Returned to customer</div>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="fn-circle" style="background:rgba(201,168,76,.1);border-color:var(--gold)">💸</div>
+        <div class="fn-label">Commission Taken</div>
+        <div class="fn-sub">Platform deducts 15%</div>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-node">
+        <div class="fn-circle" style="background:rgba(5,150,105,.1);border-color:#059669">🏦</div>
+        <div class="fn-label">Provider Paid</div>
+        <div class="fn-sub">85% sent every Friday</div>
+      </div>
+
+    </div>
+    <p style="text-align:center;font-size:.8rem;color:var(--muted);margin-top:32px">Every stage is reflected in the Order Tracking section on <a href="index.html#tracking" style="color:var(--gold-d);font-weight:600">index.html</a> and editable in the <a href="admin.html" style="color:var(--gold-d);font-weight:600">admin panel Orders section</a></p>
+  </div>
+</section>
+
+<!-- TWO-SIDED MARKETPLACE -->
+<section id="marketplace">
+  <div class="container">
+    <div class="sec-tag">Platform Model</div>
+    <h2 class="sec-title">Two-Sided Marketplace</h2>
+    <p class="sec-sub">CleanValet connects two distinct user groups — customers who need cleaning, and providers who do the cleaning — with the platform earning commission in the middle.</p>
+    <div class="mkt-split">
+
+      <div class="mkt-side customer">
+        <h3>👤 Customer Side</h3>
+        <ul class="mkt-list">
+          <li>Browse services and provider listings</li>
+          <li>Book pickup via the hero form widget</li>
+          <li>Enter postcode, select service, pick date</li>
+          <li>Track order through 5 live stages</li>
+          <li>Pay zero platform booking fees</li>
+          <li>Receive cleaned clothes within 24 hours</li>
+          <li>Leave rating and review for provider</li>
+        </ul>
+      </div>
+
+      <div class="mkt-center">
+        <div class="mkt-platform">
+          <h3>⚡ CleanValet Platform</h3>
+          <ul class="mkt-list">
+            <li>Routes orders to providers</li>
+            <li>Handles all payments</li>
+            <li>Vets and approves providers</li>
+            <li>Earns 12–18% commission</li>
+            <li>Processes weekly payouts</li>
+          </ul>
+          <span class="comm-pill">15% avg. commission</span>
+        </div>
+        <div class="arrow-lr">⇄</div>
+      </div>
+
+      <div class="mkt-side provider">
+        <h3>🏪 Provider Side</h3>
+        <ul class="mkt-list">
+          <li>Apply to join via provider form</li>
+          <li>Admin reviews and approves account</li>
+          <li>Receive orders through the platform</li>
+          <li>Accept or decline any order (flexible)</li>
+          <li>Perform professional cleaning service</li>
+          <li>Keep 82–88% of every order value</li>
+          <li>Get paid every Friday automatically</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SITE SECTION MAP (index.html) -->
+<section id="sitemap" style="background:var(--white)">
+  <div class="container">
+    <div class="sec-tag">index.html</div>
+    <h2 class="sec-title">Main Website — Section by Section</h2>
+    <p class="sec-sub">Every section of the customer-facing site, what it does, and what technologies power it.</p>
+    <div class="page-stack">
+
+      <div class="ps-item">
+        <div class="ps-num">01</div>
+        <div class="ps-icon">🧭</div>
+        <div class="ps-body">
+          <div class="ps-name">Navigation Bar</div>
+          <div class="ps-desc">Fixed sticky navbar with logo, 6 nav links, Book Now & Join as Provider CTAs, mobile hamburger menu that slides in from top. Background transitions from transparent to solid navy on scroll.</div>
+          <div class="ps-tags">
+            <span class="ps-tag tag-css">CSS sticky + backdrop-filter</span>
+            <span class="ps-tag tag-js">scroll event · hamburger toggle</span>
+          </div>
+        </div>
+        <div class="ps-right"><span class="ps-id">#nav</span></div>
+      </div>
+
+      <div class="ps-item">
+        <div class="ps-num">02</div>
+        <div class="ps-icon">🦸</div>
+        <div class="ps-body">
+          <div class="ps-name">Hero Section + Booking Widget</div>
+          <div class="ps-desc">Full-viewport navy hero with woven CSS linen texture, gold radial glow, and geometric SVG decoration. Inline booking form (postcode, service, date, quantity) with validation. 4 trust badges below.</div>
+          <div class="ps-tags">
+            <span class="ps-tag tag-css">repeating-linear-gradient texture</span>
+            <span class="ps-tag tag-js">form validation · toast · scroll to providers</span>
+            <span class="ps-tag tag-int">IntersectionObserver fade-in</span>
+          </div>
+        </div>
+        <div class="ps-right"><span class="ps-id">#hero</span></div>
+      </div>
+
+      <div class="ps-item">
+        <div class="ps-num">03</div>
+        <div class="ps-icon">📋</div>
+        <div class="ps-body">
+          <div class="ps-name">How It Works</div>
+          <div class="ps-desc">3-step process cards (Book → Collect → Deliver) with large number overlays, icon boxes, and a decorative gold connector line between cards. Hover lifts each card.</div>
+          <div class="ps-tags">
+            <span class="ps-tag tag-css">CSS grid · hover transform</span>
+            <span class="ps-tag tag-int">scroll fade-in animation</span>
+          </div>
+        </div>
+        <div class="ps-right"><span class="ps-id">#how</span></div>
+      </div>
+
+      <div class="ps-item">
+        <div class="ps-num">04</div>
+        <div class="ps-icon">🧺</div>
+        <div class="ps-body">
+          <div class="ps-name">Services Grid + Tab Filter</div>
+          <div class="ps-desc">6 service cards (Dry Cleaning, Wash & Fold, Shirts, Ironing, Duvet, Wedding Dress) with icon, name, description, price, and Book button. 4-tab filter (All / Garments / Household / Express) hides/shows cards by category.</div>
+          <div class="ps-tags">
+            <span class="ps-tag tag-css">CSS grid 3-col · gold border on hover</span>
+            <span class="ps-tag tag-js">tab switcher · data-cat attribute filtering</span>
+          </div>
+        </div>
+        <div class="ps-right"><span class="ps-id">#services</span></div>
+      </div>
+
+      <div class="ps-item">
+        <div class="ps-num">05</div>
+        <div class="ps-icon">📈</div>
+        <div class="ps-body">
+          <div class="ps-name">Live Stats Bar</div>
+          <div class="ps-desc">Navy background section with 4 animated counters (12,400+ orders, 380+ providers, 28 cities, 4.9★). Numbers count up from zero when the section enters the viewport.</div>
+          <div class="ps-tags">
+            <span class="ps-tag tag-js">IntersectionObserver · setInterval counter animation</span>
+            <span class="ps-tag tag-css">diagonal stripe background pattern</span>
+          </div>
+        </div>
+        <div class="ps-right"><span class="ps-id">#stats</span></div>
+      </div>
+
+      <div class="ps-item">
+        <div class="ps-num">06</div>
+        <div class="ps-icon">🏪</div>
+        <div class="ps-body">
+          <div class="ps-name">Provider Listings</div>
+          <div class="ps-desc">4 mock provider cards — Vienna, Berlin, Paris, Amsterdam. Each shows CSS-generated colored initials avatar, star rating, review count, specialty tags, turnaround badge, commission transparency note, and Book button.</div>
+          <div class="ps-tags">
+            <span class="ps-tag tag-css">CSS gradient avatars · tag pills</span>
+            <span class="ps-tag tag-html">article elements for accessibility</span>
+          </div>
+        </div>
+        <div class="ps-right"><span class="ps-id">#providers</span></div>
+      </div>
+
+      <div class="ps-item">
+        <div class="ps-num">07</div>
+        <div class="ps-icon">🤝</div>
+        <div class="ps-body">
+          <div class="ps-name">For Providers (Provider Acquisition)</div>
+          <div class="ps-desc">Split layout — left: benefits checklist + CTA + 5 partner logo badges. Right: CSS art dashboard illustration showing 3 floating cards (revenue, today's orders bar chart, rating).</div>
+          <div class="ps-tags">
+            <span class="ps-tag tag-css">CSS grid split · absolute positioned illustration cards</span>
+            <span class="ps-tag tag-js">Apply modal opens on CTA click</span>
+          </div>
+        </div>
+        <div class="ps-right"><span class="ps-id">#for-providers</span></div>
+      </div>
+
+      <div class="ps-item">
+        <div class="ps-num">08</div>
+        <div class="ps-icon">💲</div>
+        <div class="ps-body">
+          <div class="ps-name">Pricing / Commission Table</div>
+          <div class="ps-desc">3-tier HTML table (Starter 18%, Growth 15%, Premium 12%) with "Most Popular" callout on Growth row. Zero-fee note for customers highlighted below table.</div>
+          <div class="ps-tags">
+            <span class="ps-tag tag-html">semantic table with scope attributes</span>
+            <span class="ps-tag tag-css">::after pseudo-element for "Most Popular" badge</span>
+          </div>
+        </div>
+        <div class="ps-right"><span class="ps-id">#pricing</span></div>
+      </div>
+
+      <div class="ps-item">
+        <div class="ps-num">09</div>
+        <div class="ps-icon">⭐</div>
+        <div class="ps-body">
+          <div class="ps-name">Testimonials</div>
+          <div class="ps-desc">3-card grid — 2 customer reviews (Paris, Milan) + 1 provider review (Copenhagen). Each card has CSS avatar initials, large Playfair quote mark, review text, author name, and city. Customer/Provider type badges.</div>
+          <div class="ps-tags">
+            <span class="ps-tag tag-css">CSS gradient avatars · gold quote mark opacity</span>
+            <span class="ps-tag tag-int">scroll fade-in animation</span>
+          </div>
+        </div>
+        <div class="ps-right"><span class="ps-id">#testimonials</span></div>
+      </div>
+
+      <div class="ps-item">
+        <div class="ps-num">10</div>
+        <div class="ps-icon">📦</div>
+        <div class="ps-body">
+          <div class="ps-name">Order Tracking</div>
+          <div class="ps-desc">Navy section with order number input. Enter a code (CV-2025-001 to CV-2025-005) and see: order summary card, 5-stage animated progress timeline with pulsing active stage, live status message, and ETA bar with blinking green dot.</div>
+          <div class="ps-tags">
+            <span class="ps-tag tag-js">trackOrder() · buildResult() · SVG progress fill animation</span>
+            <span class="ps-tag tag-css">@keyframes pulse-gold · blink dot</span>
+            <span class="ps-tag tag-int">5 mock orders with different stages</span>
+          </div>
+        </div>
+        <div class="ps-right"><span class="ps-id">#tracking</span></div>
+      </div>
+
+      <div class="ps-item">
+        <div class="ps-num">11</div>
+        <div class="ps-icon">📢</div>
+        <div class="ps-body">
+          <div class="ps-name">Dual CTA + Footer</div>
+          <div class="ps-desc">Full-width split panel (navy left for customers, gold right for providers). Footer: 5-column grid with brand, 4 link columns. Carbon-neutral note, social SVG icons, copyright.</div>
+          <div class="ps-tags">
+            <span class="ps-tag tag-css">CSS grid 1fr 1fr split · CSS grid 5-col footer</span>
+            <span class="ps-tag tag-html">footer, nav, ul semantic elements</span>
+          </div>
+        </div>
+        <div class="ps-right"><span class="ps-id">#dual-cta</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ADMIN PANEL MAP -->
+<section id="adminmap">
+  <div class="container">
+    <div class="sec-tag">admin.html</div>
+    <h2 class="sec-title">Admin Panel — All 7 Panels</h2>
+    <p class="sec-sub">Each panel in the admin sidebar and exactly what you can control in it.</p>
+    <div class="admin-panels">
+
+      <div class="ap-card" style="border-color:#C9A84C">
+        <div class="ap-icon">📊</div>
+        <div class="ap-name">Dashboard</div>
+        <div class="ap-desc">Command center overview of the entire platform at a glance.</div>
+        <ul class="ap-features">
+          <li>4 stat cards (revenue, orders, providers, commission)</li>
+          <li>SVG line chart — revenue last 7 or 30 days</li>
+          <li>Bar chart — orders by service type</li>
+          <li>Recent orders mini-table (last 5)</li>
+          <li>Top providers ranked by revenue</li>
+          <li>4 quick-action shortcuts</li>
+        </ul>
+      </div>
+
+      <div class="ap-card" style="border-color:#3b82f6">
+        <div class="ap-icon">📦</div>
+        <div class="ap-name">Orders</div>
+        <div class="ap-desc">View, search, filter, and update every order on the platform.</div>
+        <ul class="ap-features">
+          <li>Search across all order fields</li>
+          <li>Filter tabs: All / Confirmed / Cleaning / Delivery / Delivered / Cancelled</li>
+          <li>Full table: ID, customer, provider, service, amount, commission</li>
+          <li>Click any row → detail modal</li>
+          <li>Dropdown to change order status live</li>
+          <li>Row count and filter results shown</li>
+        </ul>
+      </div>
+
+      <div class="ap-card" style="border-color:#059669">
+        <div class="ap-icon">🏪</div>
+        <div class="ap-name">Providers</div>
+        <div class="ap-desc">Onboard, approve, suspend, and manage all cleaning partners.</div>
+        <ul class="ap-features">
+          <li>Filter: Active / Pending / Suspended</li>
+          <li>Inline commission % input per provider</li>
+          <li>Approve pending providers with one click</li>
+          <li>Suspend / reinstate active providers</li>
+          <li>Full detail modal with all provider info</li>
+          <li>Add new provider modal form</li>
+        </ul>
+      </div>
+
+      <div class="ap-card" style="border-color:#8b5cf6">
+        <div class="ap-icon">👥</div>
+        <div class="ap-name">Customers</div>
+        <div class="ap-desc">View the full customer base and manage account status.</div>
+        <ul class="ap-features">
+          <li>Search by name, email, or city</li>
+          <li>Filter: All / Active / Blocked</li>
+          <li>Table: name, city, orders, total spend, joined date</li>
+          <li>Block and unblock customer accounts</li>
+          <li>Customer status badge (Active / Blocked)</li>
+        </ul>
+      </div>
+
+      <div class="ap-card" style="border-color:#d97706">
+        <div class="ap-icon">💰</div>
+        <div class="ap-name">Revenue & Payouts</div>
+        <div class="ap-desc">Full financial visibility and one-click payout processing.</div>
+        <ul class="ap-features">
+          <li>4 summary cards: total revenue, commission, pending payouts, provider count</li>
+          <li>Revenue trend SVG line chart</li>
+          <li>Commission breakdown bar chart per provider</li>
+          <li>Pending payout table with gross/commission/net</li>
+          <li>Pay Now per provider + Process All</li>
+        </ul>
+      </div>
+
+      <div class="ap-card" style="border-color:#C9A84C">
+        <div class="ap-icon">🧺</div>
+        <div class="ap-name">Services & Pricing</div>
+        <div class="ap-desc">Control what services appear on the platform and at what price.</div>
+        <ul class="ap-features">
+          <li>6 service cards with inline price editor</li>
+          <li>Toggle each service on/off</li>
+          <li>Add new service via modal</li>
+          <li>Category toggles (Garments / Household / Express)</li>
+          <li>Changes reflected instantly in UI</li>
+        </ul>
+      </div>
+
+      <div class="ap-card" style="border-color:#ef4444">
+        <div class="ap-icon">⚙️</div>
+        <div class="ap-name">Platform Settings</div>
+        <div class="ap-desc">Commission tiers, platform toggles, and city management.</div>
+        <ul class="ap-features">
+          <li>3 commission tier cards with inline rate editor</li>
+          <li>6 platform toggles (booking fees, registrations, emails, SMS, maintenance, auto-approve)</li>
+          <li>City tag manager — add/remove any city</li>
+          <li>All changes trigger toast confirmation</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- DATA MODELS -->
+<section id="datamodels" style="background:var(--white)">
+  <div class="container">
+    <div class="sec-tag">JavaScript Data</div>
+    <h2 class="sec-title">Data Models</h2>
+    <p class="sec-sub">All data lives as JavaScript arrays of objects — no database, no API calls. Here are the 4 core data structures.</p>
+    <div class="models-grid">
+
+      <!-- ORDER -->
+      <div class="dm-card">
+        <div class="dm-head" style="background:linear-gradient(135deg,#0B1F3A,#162d52)">
+          <h3>ORDERS[ ]</h3>
+          <span class="dm-count">10 records · admin.html</span>
+        </div>
+        <div class="dm-fields">
+          <div class="dm-field"><span class="dm-fk">id</span><span class="dm-ft t-str">string</span><span class="dm-fv">e.g. "CV-2025-001"</span></div>
+          <div class="dm-field"><span class="dm-fk">customer</span><span class="dm-ft t-str">string</span><span class="dm-fv">Full name</span></div>
+          <div class="dm-field"><span class="dm-fk">email</span><span class="dm-ft t-str">string</span><span class="dm-fv">Customer email</span></div>
+          <div class="dm-field"><span class="dm-fk">city</span><span class="dm-ft t-str">string</span><span class="dm-fv">Pickup city</span></div>
+          <div class="dm-field"><span class="dm-fk">provider</span><span class="dm-ft t-str">string</span><span class="dm-fv">Provider name</span></div>
+          <div class="dm-field"><span class="dm-fk">service</span><span class="dm-ft t-str">string</span><span class="dm-fv">Service type</span></div>
+          <div class="dm-field"><span class="dm-fk">items</span><span class="dm-ft t-str">string</span><span class="dm-fv">"3 items", "1 bag"</span></div>
+          <div class="dm-field"><span class="dm-fk">amount</span><span class="dm-ft t-num">number</span><span class="dm-fv">Customer paid (€)</span></div>
+          <div class="dm-field"><span class="dm-fk">commission</span><span class="dm-ft t-num">number</span><span class="dm-fv">Platform earned (€)</span></div>
+          <div class="dm-field"><span class="dm-fk">status</span><span class="dm-ft t-enum">enum</span><span class="dm-fv">confirmed|pickup|cleaning|delivery|delivered|cancelled</span></div>
+          <div class="dm-field"><span class="dm-fk">date</span><span class="dm-ft t-str">string</span><span class="dm-fv">YYYY-MM-DD</span></div>
+        </div>
+      </div>
+
+      <!-- PROVIDER -->
+      <div class="dm-card">
+        <div class="dm-head" style="background:linear-gradient(135deg,#064e3b,#059669)">
+          <h3>PROVIDERS[ ]</h3>
+          <span class="dm-count">6 records · admin.html</span>
+        </div>
+        <div class="dm-fields">
+          <div class="dm-field"><span class="dm-fk">id</span><span class="dm-ft t-str">string</span><span class="dm-fv">"PRV-001" to "PRV-006"</span></div>
+          <div class="dm-field"><span class="dm-fk">name</span><span class="dm-ft t-str">string</span><span class="dm-fv">Business name</span></div>
+          <div class="dm-field"><span class="dm-fk">city / country</span><span class="dm-ft t-str">string</span><span class="dm-fv">Location</span></div>
+          <div class="dm-field"><span class="dm-fk">email / phone</span><span class="dm-ft t-str">string</span><span class="dm-fv">Contact details</span></div>
+          <div class="dm-field"><span class="dm-fk">rating</span><span class="dm-ft t-num">number</span><span class="dm-fv">0.0 – 5.0</span></div>
+          <div class="dm-field"><span class="dm-fk">reviews</span><span class="dm-ft t-num">number</span><span class="dm-fv">Review count</span></div>
+          <div class="dm-field"><span class="dm-fk">orders</span><span class="dm-ft t-num">number</span><span class="dm-fv">Total completed</span></div>
+          <div class="dm-field"><span class="dm-fk">revenue</span><span class="dm-ft t-num">number</span><span class="dm-fv">Gross revenue (€)</span></div>
+          <div class="dm-field"><span class="dm-fk">commission</span><span class="dm-ft t-num">number</span><span class="dm-fv">Platform % rate (12-18)</span></div>
+          <div class="dm-field"><span class="dm-fk">plan</span><span class="dm-ft t-enum">enum</span><span class="dm-fv">Starter | Growth | Premium</span></div>
+          <div class="dm-field"><span class="dm-fk">status</span><span class="dm-ft t-enum">enum</span><span class="dm-fv">active | pending | suspended</span></div>
+          <div class="dm-field"><span class="dm-fk">joined</span><span class="dm-ft t-str">string</span><span class="dm-fv">YYYY-MM-DD</span></div>
+        </div>
+      </div>
+
+      <!-- CUSTOMER -->
+      <div class="dm-card">
+        <div class="dm-head" style="background:linear-gradient(135deg,#1e1b4b,#4338ca)">
+          <h3>CUSTOMERS[ ]</h3>
+          <span class="dm-count">8 records · admin.html</span>
+        </div>
+        <div class="dm-fields">
+          <div class="dm-field"><span class="dm-fk">id</span><span class="dm-ft t-str">string</span><span class="dm-fv">"CUS-001" etc.</span></div>
+          <div class="dm-field"><span class="dm-fk">name</span><span class="dm-ft t-str">string</span><span class="dm-fv">Full name</span></div>
+          <div class="dm-field"><span class="dm-fk">email</span><span class="dm-ft t-str">string</span><span class="dm-fv">Email address</span></div>
+          <div class="dm-field"><span class="dm-fk">city / country</span><span class="dm-ft t-str">string</span><span class="dm-fv">Location</span></div>
+          <div class="dm-field"><span class="dm-fk">orders</span><span class="dm-ft t-num">number</span><span class="dm-fv">Total orders placed</span></div>
+          <div class="dm-field"><span class="dm-fk">spent</span><span class="dm-ft t-num">number</span><span class="dm-fv">Total spend (€)</span></div>
+          <div class="dm-field"><span class="dm-fk">joined</span><span class="dm-ft t-str">string</span><span class="dm-fv">YYYY-MM-DD</span></div>
+          <div class="dm-field"><span class="dm-fk">status</span><span class="dm-ft t-enum">enum</span><span class="dm-fv">active | blocked</span></div>
+        </div>
+      </div>
+
+      <!-- ORDER TRACKING (index.html) -->
+      <div class="dm-card">
+        <div class="dm-head" style="background:linear-gradient(135deg,#7c2d12,#c2410c)">
+          <h3>ORDERS{ } — Tracking</h3>
+          <span class="dm-count">5 records · index.html</span>
+        </div>
+        <div class="dm-fields">
+          <div class="dm-field"><span class="dm-fk">key</span><span class="dm-ft t-str">string</span><span class="dm-fv">"CV-2025-001" etc.</span></div>
+          <div class="dm-field"><span class="dm-fk">stage</span><span class="dm-ft t-num">number</span><span class="dm-fv">1 (confirmed) → 5 (delivered)</span></div>
+          <div class="dm-field"><span class="dm-fk">service</span><span class="dm-ft t-str">string</span><span class="dm-fv">Service type</span></div>
+          <div class="dm-field"><span class="dm-fk">items</span><span class="dm-ft t-str">string</span><span class="dm-fv">"3 items" etc.</span></div>
+          <div class="dm-field"><span class="dm-fk">provider</span><span class="dm-ft t-str">string</span><span class="dm-fv">Provider short name</span></div>
+          <div class="dm-field"><span class="dm-fk">date</span><span class="dm-ft t-str">string</span><span class="dm-fv">Human-readable</span></div>
+          <div class="dm-field"><span class="dm-fk">eta</span><span class="dm-ft t-str">string</span><span class="dm-fv">Delivery estimate text</span></div>
+          <div class="dm-field"><span class="dm-fk">times[ ]</span><span class="dm-ft t-str">string[]</span><span class="dm-fv">Timestamp per stage (5 entries)</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- JS FEATURES -->
+<section id="jsfeatures">
+  <div class="container">
+    <div class="sec-tag">JavaScript</div>
+    <h2 class="sec-title">All Interactive Features</h2>
+    <p class="sec-sub">Every JavaScript function across both files — pure vanilla JS, zero external libraries.</p>
+    <div class="js-grid">
+
+      <div class="js-card">
+        <div class="js-card-title"><h3>index.html — Core UI</h3><span class="js-tag">6 features</span></div>
+        <div class="js-fn-list">
+          <div class="js-fn"><span class="js-fn-name">scroll event</span><div class="js-fn-desc">Navbar transitions from transparent to solid navy with backdrop-blur after 60px scroll</div></div>
+          <div class="js-fn"><span class="js-fn-name">hamburger()</span><div class="js-fn-desc">Toggles mobile menu open/close, updates aria-expanded, animates 3 spans into ✕</div></div>
+          <div class="js-fn"><span class="js-fn-name">bookForm submit</span><div class="js-fn-desc">Validates postcode + service + date, shows loading state, fires toast, scrolls to #providers</div></div>
+          <div class="js-fn"><span class="js-fn-name">tab click</span><div class="js-fn-desc">Filters .svc-card elements by data-cat attribute, toggling .gone class</div></div>
+          <div class="js-fn"><span class="js-fn-name">IntersectionObserver</span><div class="js-fn-desc">Two observers: one for [data-aos] scroll animations, one triggers stat counters on #stats entry</div></div>
+          <div class="js-fn"><span class="js-fn-name">animateCounter()</span><div class="js-fn-desc">setInterval-based count-up with support for k-suffix, decimal (4.9★), and locale formatting</div></div>
+        </div>
+      </div>
+
+      <div class="js-card">
+        <div class="js-card-title"><h3>index.html — Modals & Tracking</h3><span class="js-tag">4 features</span></div>
+        <div class="js-fn-list">
+          <div class="js-fn"><span class="js-fn-name">openModal() / closeModal()</span><div class="js-fn-desc">Provider apply modal: toggles .open class, locks body scroll, focuses first input. Escape key + overlay click close</div></div>
+          <div class="js-fn"><span class="js-fn-name">providerForm submit</span><div class="js-fn-desc">Validates required fields, shows error borders, submits with simulated delay, resets + closes</div></div>
+          <div class="js-fn"><span class="js-fn-name">trackOrder()</span><div class="js-fn-desc">Looks up order by code in ORDERS object, calls buildResult() or buildNotFound(), animates panel in</div></div>
+          <div class="js-fn"><span class="js-fn-name">buildResult()</span><div class="js-fn-desc">Generates full tracking HTML: summary card, 5-step timeline, progress fill width, live status, ETA bar</div></div>
+        </div>
+      </div>
+
+      <div class="js-card">
+        <div class="js-card-title"><h3>admin.html — Auth & Navigation</h3><span class="js-tag">5 features</span></div>
+        <div class="js-fn-list">
+          <div class="js-fn"><span class="js-fn-name">doLogin()</span><div class="js-fn-desc">Checks password === 'admin123', hides login screen, shows admin app, calls initApp()</div></div>
+          <div class="js-fn"><span class="js-fn-name">doLogout()</span><div class="js-fn-desc">Swaps visibility back to login screen, clears password field</div></div>
+          <div class="js-fn"><span class="js-fn-name">nav(id)</span><div class="js-fn-desc">Shows matching .panel, updates sidebar .on class, updates topbar title/subtitle, calls render function</div></div>
+          <div class="js-fn"><span class="js-fn-name">setFilter()</span><div class="js-fn-desc">Updates filters state object, toggles .on on tab buttons, re-renders the relevant table</div></div>
+          <div class="js-fn"><span class="js-fn-name">toggleNotifs()</span><div class="js-fn-desc">Opens/closes notification panel. Outside click listener auto-closes it</div></div>
+        </div>
+      </div>
+
+      <div class="js-card">
+        <div class="js-card-title"><h3>admin.html — Data Actions</h3><span class="js-tag">12 features</span></div>
+        <div class="js-fn-list">
+          <div class="js-fn"><span class="js-fn-name">renderOrders()</span><div class="js-fn-desc">Filters ORDERS array by status + search query, builds full HTML table, updates row count</div></div>
+          <div class="js-fn"><span class="js-fn-name">openOrderDetail()</span><div class="js-fn-desc">Finds order, populates detail modal fields, sets status dropdown, opens modal</div></div>
+          <div class="js-fn"><span class="js-fn-name">saveOrderStatus()</span><div class="js-fn-desc">Mutates order.status in ORDERS array, closes modal, re-renders table + dashboard widget</div></div>
+          <div class="js-fn"><span class="js-fn-name">approveProvider()</span><div class="js-fn-desc">Sets provider.status = 'active', re-renders provider table, updates pending badge count</div></div>
+          <div class="js-fn"><span class="js-fn-name">suspendProvider()</span><div class="js-fn-desc">Sets provider.status = 'suspended', re-renders, fires notify toast</div></div>
+          <div class="js-fn"><span class="js-fn-name">updateCommission()</span><div class="js-fn-desc">Updates provider.commission from inline input change event, fires notify</div></div>
+          <div class="js-fn"><span class="js-fn-name">renderRevenueChart()</span><div class="js-fn-desc">Generates SVG polyline chart: calculates x/y coords from data array, creates path + area fill + dots</div></div>
+          <div class="js-fn"><span class="js-fn-name">blockCustomer() / unblockCustomer()</span><div class="js-fn-desc">Mutates customer.status, re-renders customer table</div></div>
+          <div class="js-fn"><span class="js-fn-name">toggleService()</span><div class="js-fn-desc">Updates service.active boolean from toggle checkbox change</div></div>
+          <div class="js-fn"><span class="js-fn-name">updateSvcPrice()</span><div class="js-fn-desc">Updates service.price from inline price input, fires confirmation toast</div></div>
+          <div class="js-fn"><span class="js-fn-name">updateTierRate()</span><div class="js-fn-desc">Updates TIERS[i].rate from inline input, fires toast</div></div>
+          <div class="js-fn"><span class="js-fn-name">addCity() / removeCity()</span><div class="js-fn-desc">Pushes/filters activeCities array, re-renders city tags</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- COMMISSION MODEL -->
+<section id="commission">
+  <div class="container">
+    <div class="sec-tag" style="color:rgba(201,168,76,.6)">Business Model</div>
+    <h2 class="comm-title">How Commission Works</h2>
+    <p class="comm-sub">Every order generates revenue for the platform. Here's exactly how money flows.</p>
+
+    <div class="comm-flow">
+      <div class="cf-block">
+        <div class="cf-label">Customer Pays</div>
+        <div class="cf-val">€28.50</div>
+        <div class="cf-desc">Full service price paid to CleanValet at booking</div>
+      </div>
+      <div class="cf-block">
+        <div class="cf-label">Platform Commission</div>
+        <div class="cf-val gold">€4.28</div>
+        <div class="cf-desc">15% kept by CleanValet as marketplace fee</div>
+      </div>
+      <div class="cf-block">
+        <div class="cf-label">Provider Receives</div>
+        <div class="cf-val success">€24.22</div>
+        <div class="cf-desc">85% transferred every Friday</div>
+      </div>
+      <div class="cf-block">
+        <div class="cf-label">Customer Booking Fee</div>
+        <div class="cf-val">€0.00</div>
+        <div class="cf-desc">Always free to book — no hidden charges</div>
+      </div>
+    </div>
+
+    <div class="comm-tiers-wrap">
+      <div class="ct">
+        <div class="ct-name">Starter</div>
+        <div class="ct-rate">18<span style="font-size:1rem">%</span></div>
+        <div class="ct-unit">commission rate</div>
+        <div class="ct-desc">Up to 50 orders/month<br>Basic dashboard · Email support</div>
+      </div>
+      <div class="ct featured">
+        <div class="ct-name">Growth ✦ Most Popular</div>
+        <div class="ct-rate">15<span style="font-size:1rem">%</span></div>
+        <div class="ct-unit">commission rate</div>
+        <div class="ct-desc">Unlimited orders<br>Full dashboard · Analytics · Reviews</div>
+      </div>
+      <div class="ct">
+        <div class="ct-name">Premium</div>
+        <div class="ct-rate">12<span style="font-size:1rem">%</span></div>
+        <div class="ct-unit">commission rate</div>
+        <div class="ct-desc">Unlimited orders<br>Priority listing · Account manager</div>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:20px;font-size:.78rem;color:rgba(255,255,255,.3)">Commission rates are editable in Admin → Platform Settings</p>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section id="techstack">
+  <div class="container">
+    <div class="sec-tag">Technology</div>
+    <h2 class="sec-title">Tech Stack</h2>
+    <p class="sec-sub">100% native web technologies — no frameworks, no build tools, no dependencies.</p>
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="tech-icon">📄</div>
+        <div class="tech-name">HTML5 Semantic</div>
+        <div class="tech-desc">nav, main, section, article, footer, header, aside. ARIA roles, labels, aria-live regions for accessibility. WCAG-compliant focus states.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🎨</div>
+        <div class="tech-name">CSS3 Advanced</div>
+        <div class="tech-desc">Custom properties (CSS variables), CSS Grid, Flexbox, @keyframes animations, IntersectionObserver-triggered transitions, CSS pseudo-elements, repeating-linear-gradient textures, backdrop-filter.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">⚡</div>
+        <div class="tech-name">Vanilla JavaScript</div>
+        <div class="tech-desc">ES6+: const/let, arrow functions, array methods (filter, map, find, reduce), template literals, IntersectionObserver API, requestAnimationFrame, dynamic SVG generation. Zero libraries.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🔤</div>
+        <div class="tech-name">Google Fonts</div>
+        <div class="tech-desc">Playfair Display (headings — elegant serif), DM Sans (body — clean geometric sans-serif), JetBrains Mono (code/IDs on this page). Loaded via @import.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">📊</div>
+        <div class="tech-name">SVG Charts</div>
+        <div class="tech-desc">Revenue line charts built as inline SVG: path (area fill) + polyline + circle dots. All coordinates calculated dynamically from data arrays in JavaScript. No Chart.js or D3.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">📱</div>
+        <div class="tech-name">Responsive Design</div>
+        <div class="tech-desc">Mobile-first CSS. Breakpoints at 480px, 600px, 768px, 860px, 1100px. CSS Grid auto-reflows from 3-col → 2-col → 1-col. Sidebar collapses to overlay on mobile.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">♿</div>
+        <div class="tech-name">Accessibility</div>
+        <div class="tech-desc">aria-label on all icons and buttons, role="navigation", role="dialog", aria-modal, aria-live="polite" on toasts and tracking results, focus management in modals, skip-to-content focus styles.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🚀</div>
+        <div class="tech-name">Performance</div>
+        <div class="tech-desc">No external JS bundles. Fonts preloaded via Google CDN. IntersectionObserver for lazy animation triggering. Passive scroll listeners. CSS transitions use transform (GPU-composited).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div id="foot">
+  <div class="container">
+    <p><strong>CleanValet</strong> Program Structure · 3 files · ~3,600 lines total · 100% vanilla HTML/CSS/JS</p>
+    <p style="margin-top:6px">Open <a href="index.html" style="color:var(--gold)">index.html</a> for the live site · <a href="admin.html" style="color:var(--gold)">admin.html</a> (password: admin123) for the control panel</p>
+  </div>
+</div>
+
+<script>
+// Highlight active nav link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.tb-link[href^="#"]');
+
+function updateActiveLink() {
+  let current = '';
+  sections.forEach(s => {
+    if (s && window.scrollY >= s.offsetTop - 120) current = s.id;
+  });
+  navLinks.forEach(l => {
+    const href = l.getAttribute('href');
+    l.classList.toggle('active', href === '#' + current);
+  });
+}
+
+window.addEventListener('scroll', updateActiveLink, { passive: true });
+window.addEventListener('load', updateActiveLink);
+
+// Smooth scroll for structure.html nav links
+navLinks.forEach(link => {
+  link.addEventListener('click', e => {
+    const href = link.getAttribute('href');
+    if (href && href.startsWith('#')) {
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>

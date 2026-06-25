@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CleanValet Admin — Control Panel</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root{
+  --navy:#0B1F3A;--navy-l:#162d52;--navy-d:#071528;
+  --gold:#C9A84C;--gold-l:#D9BC72;--gold-d:#A8882E;
+  --white:#fff;--bg:#F0F2F5;--card:#fff;
+  --border:#E4E4E7;--text:#27272A;--muted:#71717A;--sub:#A1A1AA;
+  --success:#059669;--danger:#ef4444;--warn:#d97706;--info:#3b82f6;
+  --sb:260px;--tb:64px;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;
+  --shadow:0 1px 6px rgba(0,0,0,.08);--shadow-md:0 6px 24px rgba(0,0,0,.11);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text);background:var(--bg);overflow:hidden}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:'DM Sans',sans-serif;border:none;background:none}
+input,select,textarea{font-family:'DM Sans',sans-serif}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#D4D4D8;border-radius:10px}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:9999}
+#loginScreen::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 6px),repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 6px)}
+.lbox{background:rgba(255,255,255,.97);border-radius:20px;padding:48px 44px;width:100%;max-width:420px;box-shadow:0 32px 80px rgba(0,0,0,.35);position:relative;z-index:1}
+.lbox-logo{display:flex;align-items:center;gap:9px;font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.lbox-logo span{color:var(--gold)}
+.lbox-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.28);color:var(--gold-d);padding:4px 12px;border-radius:100px;font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:26px}
+.lbox h2{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:700;color:var(--navy);margin-bottom:5px}
+.lbox p{font-size:.84rem;color:var(--muted);margin-bottom:26px}
+.lf{margin-bottom:14px}
+.lf label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#52525B;margin-bottom:5px}
+.lf input{width:100%;padding:11px 15px;border:1.5px solid var(--border);border-radius:10px;font-size:.93rem;color:var(--navy);outline:none;transition:border-color .2s}
+.lf input:focus{border-color:var(--gold)}
+#loginErr{color:var(--danger);font-size:.8rem;margin-top:4px;display:none;font-weight:500}
+.login-btn{width:100%;padding:13px;border-radius:10px;background:var(--gold);color:var(--navy);font-weight:700;font-size:.95rem;margin-top:6px;transition:all .25s;border:none}
+.login-btn:hover{background:var(--gold-d);transform:translateY(-1px)}
+.login-hint{text-align:center;margin-top:14px;font-size:.76rem;color:var(--sub)}
+.login-hint strong{color:var(--navy)}
+
+/* APP LAYOUT */
+#adminApp{display:none;height:100vh;overflow:hidden}
+.app-wrap{display:flex;height:100%}
+
+/* SIDEBAR */
+#sidebar{width:var(--sb);flex-shrink:0;background:var(--navy-d);display:flex;flex-direction:column;height:100vh;overflow-y:auto;position:relative;z-index:200;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.sb-logo{padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:9px;font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--white)}
+.sb-logo span{color:var(--gold)}
+.sb-sec-label{padding:18px 18px 6px;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,.22)}
+.sb-nav{list-style:none;padding:0 10px}
+.sb-nav li{margin-bottom:1px}
+.sb-nav li a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:rgba(255,255,255,.58);font-size:.86rem;font-weight:500;transition:all .2s;cursor:pointer}
+.sb-nav li a:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.88)}
+.sb-nav li a.on{background:rgba(201,168,76,.13);color:var(--gold);font-weight:600}
+.sb-nav li a .ico{font-size:.98rem;width:20px;text-align:center;flex-shrink:0}
+.sb-nav li a .nbadge{margin-left:auto;background:var(--gold);color:var(--navy);font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:100px;min-width:18px;text-align:center}
+.sb-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,.06)}
+.sb-user{display:flex;align-items:center;gap:10px;padding:9px;border-radius:10px}
+.sb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-l));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:var(--navy);flex-shrink:0}
+.sb-uname{font-size:.83rem;font-weight:600;color:var(--white);line-height:1.3}
+.sb-urole{font-size:.7rem;color:rgba(255,255,255,.38)}
+.sb-logout{width:100%;margin-top:8px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.09);color:rgba(255,255,255,.45);font-size:.8rem;font-weight:600;transition:all .2s;text-align:center}
+.sb-logout:hover{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#fca5a5}
+
+/* MAIN */
+#mainWrap{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#topbar{height:var(--tb);flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;gap:12px}
+.tb-left{display:flex;align-items:center;gap:12px}
+.mob-toggle{display:none;width:34px;height:34px;border-radius:8px;background:var(--bg);align-items:center;justify-content:center;font-size:1rem;cursor:pointer;border:none;flex-shrink:0}
+#pageTitle h1{font-family:'Playfair Display',serif;font-size:1.16rem;font-weight:700;color:var(--navy);line-height:1.2}
+#pageTitle p{font-size:.72rem;color:var(--muted)}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-btn{width:36px;height:36px;border-radius:9px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;position:relative;border:none;transition:background .2s;flex-shrink:0}
+.tb-btn:hover{background:var(--border)}
+.notif-badge{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--gold);border:2px solid var(--white)}
+.tb-date{font-size:.76rem;color:var(--muted);padding:7px 13px;background:var(--bg);border-radius:8px;white-space:nowrap}
+.tb-admin{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg);border-radius:9px;cursor:pointer}
+.tb-admin-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-l));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--navy)}
+.tb-admin-name{font-size:.8rem;font-weight:600;color:var(--navy)}
+
+#content{flex:1;overflow-y:auto;padding:28px;background:var(--bg)}
+.panel{display:none;animation:fadeUp .3s ease}
+.panel.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* STAT CARDS */
+.sc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.sc{background:var(--card);border-radius:var(--r-lg);padding:20px 22px;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s}
+.sc:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.sc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.sc-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.25rem}
+.delta{font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:100px}
+.up{background:rgba(5,150,105,.1);color:var(--success)}
+.dn{background:rgba(239,68,68,.1);color:var(--danger)}
+.sc-val{font-family:'Playfair Display',serif;font-size:1.85rem;font-weight:700;color:var(--navy);line-height:1}
+.sc-lbl{font-size:.76rem;color:var(--muted);margin-top:4px;font-weight:500}
+
+/* CHARTS */
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px}
+.chart-card,.card{background:var(--card);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow);margin-bottom:0}
+.card{margin-bottom:20px}
+.ch-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+.ch-hd h3{font-family:'Playfair Display',serif;font-size:.98rem;font-weight:700;color:var(--navy)}
+.ch-hd select{padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:.76rem;color:#52525B;outline:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+.svg-chart{width:100%;overflow:visible;display:block}
+.x-labels{display:flex;justify-content:space-between;padding:0 4px;margin-top:6px}
+.x-labels span{font-size:.68rem;color:var(--sub);font-weight:500}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-lbl{font-size:.76rem;color:#52525B;width:100px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--gold-l));transition:width .9s cubic-bezier(.4,0,.2,1)}
+.bar-num{font-size:.76rem;font-weight:700;color:var(--navy);width:30px;text-align:right}
+
+/* BOTTOM ROW */
+.bottom-row{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+.prov-mini-list{display:flex;flex-direction:column;gap:11px}
+.pmi{display:flex;align-items:center;gap:11px}
+.pmi-av{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.82rem;font-weight:700;color:var(--white);flex-shrink:0}
+.pmi-name{font-size:.84rem;font-weight:600;color:var(--navy);line-height:1.2}
+.pmi-sub{font-size:.72rem;color:var(--muted)}
+.pmi-rev{margin-left:auto;font-family:'Playfair Display',serif;font-size:.94rem;font-weight:700;color:var(--gold-d)}
+
+/* TABLES */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.search-wrap{position:relative;flex:1;min-width:180px}
+.search-wrap::before{content:'🔍';position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:.8rem;pointer-events:none}
+.search-wrap input{width:100%;padding:9px 12px 9px 34px;border:1.5px solid var(--border);border-radius:9px;font-size:.86rem;color:var(--navy);outline:none;transition:border-color .2s;background:var(--card)}
+.search-wrap input:focus{border-color:var(--gold)}
+.ftabs{display:flex;gap:3px;background:var(--card);border:1.5px solid var(--border);border-radius:9px;padding:3px;flex-wrap:wrap}
+.ft{padding:6px 14px;border-radius:6px;font-size:.78rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;border:none;background:none;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.ft.on{background:var(--navy);color:var(--white)}
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;min-width:600px}
+.tbl th{padding:9px 13px;text-align:left;font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);border-bottom:1.5px solid var(--border);white-space:nowrap}
+.tbl td{padding:12px 13px;font-size:.84rem;color:#3F3F46;border-bottom:1px solid var(--bg);vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:#FAFAFA}
+.tbl-acts{display:flex;gap:5px;align-items:center;flex-wrap:nowrap}
+.tbl-info{font-size:.75rem;color:var(--muted);margin-top:10px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:.69rem;font-weight:700;text-transform:capitalize;white-space:nowrap;gap:4px}
+.b-confirmed{background:rgba(99,102,241,.1);color:#6366f1}
+.b-pickup{background:rgba(139,92,246,.1);color:#8b5cf6}
+.b-cleaning{background:rgba(245,158,11,.1);color:#d97706}
+.b-delivery{background:rgba(59,130,246,.1);color:#3b82f6}
+.b-delivered{background:rgba(5,150,105,.1);color:#059669}
+.b-cancelled{background:rgba(239,68,68,.1);color:#ef4444}
+.b-active{background:rgba(5,150,105,.1);color:#059669}
+.b-pending{background:rgba(245,158,11,.1);color:#d97706}
+.b-suspended{background:rgba(239,68,68,.1);color:#ef4444}
+.b-blocked{background:rgba(239,68,68,.1);color:#ef4444}
+.b-starter{background:rgba(161,161,170,.1);color:#52525B}
+.b-growth{background:rgba(201,168,76,.12);color:var(--gold-d)}
+.b-premium{background:rgba(99,102,241,.1);color:#6366f1}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:7px;font-size:.8rem;font-weight:600;transition:all .2s;border:1.5px solid transparent;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.btn-navy{background:var(--navy);color:var(--white);border-color:var(--navy)}
+.btn-navy:hover{background:var(--navy-l)}
+.btn-gold{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.btn-gold:hover{background:var(--gold-d)}
+.btn-out{background:transparent;color:var(--navy);border-color:var(--border)}
+.btn-out:hover{background:var(--bg)}
+.btn-danger{background:transparent;color:var(--danger);border-color:#fecaca}
+.btn-danger:hover{background:#fef2f2}
+.btn-success{background:transparent;color:var(--success);border-color:#a7f3d0}
+.btn-success:hover{background:#ecfdf5}
+.btn-warn{background:transparent;color:var(--warn);border-color:#fed7aa}
+.btn-warn:hover{background:#fff7ed}
+.btn-sm{padding:4px 10px;font-size:.73rem}
+
+/* TOGGLE */
+.tog{position:relative;display:inline-flex;align-items:center;gap:9px;cursor:pointer}
+.tog input{position:absolute;opacity:0;width:0;height:0}
+.tog-track{width:40px;height:22px;background:var(--border);border-radius:100px;transition:background .25s;flex-shrink:0;position:relative}
+.tog input:checked~.tog-track{background:var(--gold)}
+.tog-track::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--white);transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tog input:checked~.tog-track::after{transform:translateX(18px)}
+
+/* SERVICE CARDS */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.svc-adm{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r-md);padding:18px;transition:border-color .25s}
+.svc-adm:hover{border-color:var(--gold)}
+.svc-adm-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.svc-adm-icon{font-size:1.7rem}
+.svc-adm-nm{font-family:'Playfair Display',serif;font-size:.96rem;font-weight:700;color:var(--navy);margin-bottom:2px}
+.svc-adm-cat{font-size:.68rem;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.price-row{display:flex;align-items:center;gap:6px;margin-top:10px}
+.price-row span{font-size:.78rem;color:var(--muted)}
+.pinput{width:76px;padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:.9rem;font-weight:700;color:var(--navy);outline:none;font-family:'Playfair Display',serif;transition:border-color .2s;text-align:right}
+.pinput:focus{border-color:var(--gold)}
+
+/* TIER CARDS */
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tier{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r-md);padding:20px}
+.tier.highlight{border-color:var(--gold)}
+.tier-nm{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:10px}
+.rate-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.rinput{width:60px;padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:1.15rem;font-weight:700;color:var(--gold-d);font-family:'Playfair Display',serif;outline:none;text-align:center;transition:border-color .2s}
+.rinput:focus{border-color:var(--gold)}
+.rate-row span{font-size:1.1rem;color:var(--sub)}
+.tier-info{font-size:.78rem;color:var(--muted);line-height:1.5}
+
+/* REVENUE */
+.rev-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.rsc{background:var(--card);border-radius:var(--r-md);padding:17px 19px;box-shadow:var(--shadow)}
+.rsc-lbl{font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:5px}
+.rsc-val{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:700;color:var(--navy)}
+.rsc-val.gold{color:var(--gold-d)}
+
+/* CITY TAGS */
+.city-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.city-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--bg);border-radius:100px;font-size:.78rem;font-weight:500;border:1px solid var(--border)}
+.city-tag button{font-size:.85rem;color:var(--sub);padding:0;line-height:1;transition:color .2s}
+.city-tag button:hover{color:var(--danger)}
+.add-city{display:flex;gap:8px;margin-top:10px}
+.add-city input{flex:1;padding:8px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;outline:none;transition:border-color .2s}
+.add-city input:focus{border-color:var(--gold)}
+
+/* MODALS */
+.overlay{position:fixed;inset:0;background:rgba(7,21,40,.7);backdrop-filter:blur(6px);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .28s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--white);border-radius:18px;padding:34px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;transform:scale(.96) translateY(10px);transition:transform .28s}
+.overlay.open .modal{transform:none}
+.mhd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:12px}
+.mhd h2{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:var(--navy);line-height:1.2}
+.mhd p{font-size:.8rem;color:var(--muted);margin-top:3px}
+.mx{width:30px;height:30px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all .2s;font-size:.85rem;flex-shrink:0;border:none}
+.mx:hover{background:var(--border);color:var(--text)}
+.mf{margin-bottom:13px}
+.mf label{display:block;font-size:.71rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#52525B;margin-bottom:4px}
+.mf input,.mf select,.mf textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.89rem;color:var(--navy);outline:none;transition:border-color .2s;font-family:'DM Sans',sans-serif}
+.mf input:focus,.mf select:focus,.mf textarea:focus{border-color:var(--gold)}
+.mf textarea{resize:vertical;min-height:76px}
+.mf-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;margin-bottom:18px}
+.dg-item label{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:2px}
+.dg-item span{font-size:.88rem;color:var(--navy);font-weight:500}
+
+/* NOTIFICATIONS */
+.notif-panel{position:fixed;top:calc(var(--tb) + 8px);right:20px;width:320px;background:var(--white);border-radius:14px;box-shadow:var(--shadow-md);border:1px solid var(--border);z-index:500;display:none;overflow:hidden;animation:fadeUp .2s ease}
+.notif-panel.open{display:block}
+.np-head{padding:13px 16px;border-bottom:1px solid var(--bg);font-family:'Playfair Display',serif;font-size:.92rem;font-weight:700;color:var(--navy);display:flex;align-items:center;justify-content:space-between}
+.np-head button{font-size:.72rem;color:var(--gold-d);font-weight:600;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif}
+.ni{padding:12px 16px;border-bottom:1px solid var(--bg);display:flex;align-items:flex-start;gap:10px;cursor:default;transition:background .18s}
+.ni:hover{background:#FAFAFA}
+.ni:last-child{border-bottom:none}
+.ni-ico{font-size:1.15rem;flex-shrink:0;margin-top:1px}
+.ni p{font-size:.82rem;color:#3F3F46;line-height:1.4}
+.ni time{font-size:.7rem;color:var(--sub)}
+.ni-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:5px}
+
+/* SETTINGS */
+.settings-section{margin-bottom:28px}
+.settings-section h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bg);gap:16px}
+.setting-row:last-child{border-bottom:none}
+.setting-info h4{font-size:.88rem;font-weight:600;color:var(--navy);margin-bottom:2px}
+.setting-info p{font-size:.76rem;color:var(--muted);line-height:1.45}
+
+/* QUICK ACTIONS */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.qa{background:var(--card);border-radius:var(--r-md);padding:16px;text-align:center;cursor:pointer;border:1.5px solid var(--border);transition:all .25s}
+.qa:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.qa-icon{font-size:1.6rem;margin-bottom:8px}
+.qa-lbl{font-size:.78rem;font-weight:600;color:var(--navy)}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+  .sc-grid{grid-template-columns:1fr 1fr}
+  .charts-row{grid-template-columns:1fr}
+  .bottom-row{grid-template-columns:1fr}
+  .tier-grid{grid-template-columns:1fr 1fr}
+  .rev-sum{grid-template-columns:1fr 1fr}
+  .qa-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:860px){
+  #sidebar{position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%)}
+  #sidebar.mob-open{transform:none}
+  .mob-toggle{display:flex!important}
+  .sb-mob-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:199}
+  .sb-mob-bg.open{display:block}
+  #content{padding:16px}
+  #topbar{padding:0 16px}
+  .svc-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:520px){
+  .sc-grid{grid-template-columns:1fr}
+  .svc-grid{grid-template-columns:1fr}
+  .tier-grid{grid-template-columns:1fr}
+  .rev-sum{grid-template-columns:1fr}
+  .mf-2{grid-template-columns:1fr}
+  .qa-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="lbox">
+    <div class="lbox-logo">🧺 Clean<span>Valet</span></div>
+    <div class="lbox-badge">🔐 Admin Control Panel</div>
+    <h2>Welcome back</h2>
+    <p>Sign in to access the CleanValet admin dashboard.</p>
+    <div class="lf">
+      <label for="ladmin">Admin Email</label>
+      <input type="email" id="ladmin" value="admin@cleanvalet.eu">
+    </div>
+    <div class="lf">
+      <label for="lpass">Password</label>
+      <input type="password" id="lpass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div id="loginErr"></div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In to Dashboard</button>
+    <p class="login-hint">Contact your system administrator for access credentials.</p>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="adminApp">
+  <div class="app-wrap">
+    <div class="sb-mob-bg" id="sbBg" onclick="closeSidebar()"></div>
+
+    <aside id="sidebar">
+      <div class="sb-logo">🧺 Clean<span>Valet</span></div>
+
+      <div class="sb-sec-label">Main</div>
+      <ul class="sb-nav">
+        <li><a onclick="nav('dashboard')" class="on" id="nav-dashboard"><span class="ico">📊</span> Dashboard</a></li>
+        <li><a onclick="nav('orders')" id="nav-orders"><span class="ico">📦</span> Orders <span class="nbadge" id="nb-orders">3</span></a></li>
+        <li><a onclick="nav('providers')" id="nav-providers"><span class="ico">🏪</span> Providers <span class="nbadge" id="nb-prov">2</span></a></li>
+        <li><a onclick="nav('customers')" id="nav-customers"><span class="ico">👥</span> Customers</a></li>
+      </ul>
+
+      <div class="sb-sec-label">Finance</div>
+      <ul class="sb-nav">
+        <li><a onclick="nav('revenue')" id="nav-revenue"><span class="ico">💰</span> Revenue & Payouts</a></li>
+      </ul>
+
+      <div class="sb-sec-label">Management</div>
+      <ul class="sb-nav">
+        <li><a onclick="nav('services')" id="nav-services"><span class="ico">🧺</span> Services & Pricing</a></li>
+        <li><a onclick="nav('settings')" id="nav-settings"><span class="ico">⚙️</span> Platform Settings</a></li>
+      </ul>
+
+      <div class="sb-footer">
+        <div class="sb-user">
+          <div class="sb-av">SA</div>
+          <div><div class="sb-uname">Super Admin</div><div class="sb-urole">admin@cleanvalet.eu</div></div>
+        </div>
+        <a href="structure.html" style="display:block;width:100%;margin-bottom:4px;padding:7px;border-radius:8px;border:1px solid rgba(255,255,255,.07);color:rgba(255,255,255,.35);font-size:.76rem;font-weight:600;text-align:center;transition:all .2s;text-decoration:none" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">📐 Architecture Docs</a>
+        <a href="index.html" style="display:block;width:100%;margin-bottom:6px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.09);color:rgba(255,255,255,.45);font-size:.8rem;font-weight:600;text-align:center;transition:all .2s;text-decoration:none" onmouseover="this.style.background='rgba(201,168,76,.1)';this.style.borderColor='rgba(201,168,76,.3)';this.style.color='var(--gold)'" onmouseout="this.style.background='';this.style.borderColor='rgba(255,255,255,.09)';this.style.color='rgba(255,255,255,.45)'">↗ View Live Site</a>
+        <button class="sb-logout" onclick="doLogout()">Sign Out</button>
+      </div>
+    </aside>
+
+    <div id="mainWrap">
+      <header id="topbar">
+        <div class="tb-left">
+          <button class="mob-toggle" id="mobToggle" onclick="openSidebar()">☰</button>
+          <div id="pageTitle">
+            <h1>Dashboard</h1>
+            <p>Welcome back — here's what's happening today</p>
+          </div>
+        </div>
+        <div class="tb-right">
+          <div class="tb-date" id="tbDate"></div>
+          <button class="tb-btn" onclick="toggleNotifs()">🔔<span class="notif-badge"></span></button>
+          <div class="tb-admin">
+            <div class="tb-admin-av">SA</div>
+            <span class="tb-admin-name">Super Admin</span>
+          </div>
+        </div>
+      </header>
+
+      <main id="content">
+
+        <!-- DASHBOARD -->
+        <div class="panel on" id="pnl-dashboard">
+          <div class="sc-grid" id="dashStats"></div>
+          <div class="qa-grid">
+            <div class="qa" onclick="nav('orders')"><div class="qa-icon">📦</div><div class="qa-lbl">Manage Orders</div></div>
+            <div class="qa" onclick="nav('providers')"><div class="qa-icon">✅</div><div class="qa-lbl">Approve Providers</div></div>
+            <div class="qa" onclick="nav('revenue')"><div class="qa-icon">💸</div><div class="qa-lbl">Process Payouts</div></div>
+            <div class="qa" onclick="nav('services')"><div class="qa-icon">💲</div><div class="qa-lbl">Edit Pricing</div></div>
+          </div>
+          <div class="charts-row">
+            <div class="chart-card">
+              <div class="ch-hd">
+                <h3>Revenue (Last 7 Days)</h3>
+                <select onchange="updateRevenueChart(this.value)">
+                  <option value="7">Last 7 days</option>
+                  <option value="30">Last 30 days</option>
+                </select>
+              </div>
+              <svg class="svg-chart" id="revChart" viewBox="0 0 600 160" height="160"></svg>
+              <div class="x-labels" id="revLabels"></div>
+            </div>
+            <div class="chart-card">
+              <div class="ch-hd"><h3>Orders by Service</h3></div>
+              <div id="svcBars"></div>
+            </div>
+          </div>
+          <div class="bottom-row">
+            <div class="card">
+              <div class="ch-hd"><h3>Recent Orders</h3><span style="font-size:.78rem;color:var(--gold-d);cursor:pointer;font-weight:600" onclick="nav('orders')">View all →</span></div>
+              <div class="tbl-wrap"><table class="tbl" id="dashOrders"></table></div>
+            </div>
+            <div class="card">
+              <div class="ch-hd"><h3>Top Providers</h3><span style="font-size:.78rem;color:var(--gold-d);cursor:pointer;font-weight:600" onclick="nav('providers')">View all →</span></div>
+              <div class="prov-mini-list" id="topProviders"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ORDERS -->
+        <div class="panel" id="pnl-orders">
+          <div class="card">
+            <div class="toolbar">
+              <div class="search-wrap"><input type="text" id="orderSearch" placeholder="Search order, customer, provider…" aria-label="Search orders" oninput="renderOrders()"></div>
+              <div class="ftabs">
+                <button class="ft on" onclick="setFilter('orders','all',this)">All</button>
+                <button class="ft" onclick="setFilter('orders','confirmed',this)">Confirmed</button>
+                <button class="ft" onclick="setFilter('orders','cleaning',this)">Cleaning</button>
+                <button class="ft" onclick="setFilter('orders','delivery',this)">Delivery</button>
+                <button class="ft" onclick="setFilter('orders','delivered',this)">Delivered</button>
+                <button class="ft" onclick="setFilter('orders','cancelled',this)">Cancelled</button>
+              </div>
+            </div>
+            <div class="tbl-wrap"><table class="tbl" id="ordersTable"></table></div>
+            <div class="tbl-info" id="ordersInfo"></div>
+          </div>
+        </div>
+
+        <!-- PROVIDERS -->
+        <div class="panel" id="pnl-providers">
+          <div class="card">
+            <div class="toolbar">
+              <div class="search-wrap"><input type="text" id="provSearch" placeholder="Search provider, city…" aria-label="Search providers" oninput="renderProviders()"></div>
+              <div class="ftabs">
+                <button class="ft on" onclick="setFilter('prov','all',this)">All</button>
+                <button class="ft" onclick="setFilter('prov','active',this)">Active</button>
+                <button class="ft" onclick="setFilter('prov','pending',this)">Pending</button>
+                <button class="ft" onclick="setFilter('prov','suspended',this)">Suspended</button>
+              </div>
+              <button class="btn btn-gold" onclick="openModal('addProvModal')">+ Add Provider</button>
+            </div>
+            <div class="tbl-wrap"><table class="tbl" id="provTable"></table></div>
+            <div class="tbl-info" id="provInfo"></div>
+          </div>
+        </div>
+
+        <!-- CUSTOMERS -->
+        <div class="panel" id="pnl-customers">
+          <div class="card">
+            <div class="toolbar">
+              <div class="search-wrap"><input type="text" id="custSearch" placeholder="Search customer, city, email…" aria-label="Search customers" oninput="renderCustomers()"></div>
+              <div class="ftabs">
+                <button class="ft on" onclick="setFilter('cust','all',this)">All</button>
+                <button class="ft" onclick="setFilter('cust','active',this)">Active</button>
+                <button class="ft" onclick="setFilter('cust','blocked',this)">Blocked</button>
+              </div>
+            </div>
+            <div class="tbl-wrap"><table class="tbl" id="custTable"></table></div>
+            <div class="tbl-info" id="custInfo"></div>
+          </div>
+        </div>
+
+        <!-- REVENUE -->
+        <div class="panel" id="pnl-revenue">
+          <div class="rev-sum" id="revSum"></div>
+          <div class="charts-row" style="margin-bottom:20px">
+            <div class="chart-card">
+              <div class="ch-hd"><h3>Revenue Trend</h3></div>
+              <svg class="svg-chart" id="revChart2" viewBox="0 0 600 160" height="160"></svg>
+              <div class="x-labels" id="revLabels2"></div>
+            </div>
+            <div class="chart-card">
+              <div class="ch-hd"><h3>Commission Breakdown</h3></div>
+              <div id="commBars"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch-hd"><h3>Pending Payouts</h3><button class="btn btn-gold btn-sm" onclick="notify('All payouts processed! ✅')">Process All Payouts</button></div>
+            <div class="tbl-wrap"><table class="tbl" id="payoutTable"></table></div>
+          </div>
+        </div>
+
+        <!-- SERVICES -->
+        <div class="panel" id="pnl-services">
+          <div class="card" style="margin-bottom:18px">
+            <div class="ch-hd">
+              <h3>Active Services & Pricing</h3>
+              <button class="btn btn-gold" onclick="openModal('addSvcModal')">+ Add Service</button>
+            </div>
+            <div class="svc-grid" id="svcGrid"></div>
+          </div>
+          <div class="card">
+            <div class="ch-hd"><h3>Service Categories</h3></div>
+            <div class="setting-row">
+              <div class="setting-info"><h4>Garments</h4><p>Dry cleaning, shirts, ironing, wedding dress</p></div>
+              <label class="tog"><input type="checkbox" checked onchange="notify('Garments '+(this.checked?'enabled':'disabled'))"><div class="tog-track"></div></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><h4>Household</h4><p>Duvets, bedding, curtains, rugs</p></div>
+              <label class="tog"><input type="checkbox" checked onchange="notify('Household '+(this.checked?'enabled':'disabled'))"><div class="tog-track"></div></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><h4>Express (24hr)</h4><p>Same-day and next-day premium services</p></div>
+              <label class="tog"><input type="checkbox" checked onchange="notify('Express '+(this.checked?'enabled':'disabled'))"><div class="tog-track"></div></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="panel" id="pnl-settings">
+          <div class="card" style="margin-bottom:18px">
+            <div class="settings-section">
+              <h3>Commission Tiers</h3>
+              <div class="tier-grid" id="tierGrid"></div>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:18px">
+            <div class="settings-section">
+              <h3>Platform Settings</h3>
+              <div class="setting-row">
+                <div class="setting-info"><h4>Customer Booking Fees</h4><p>Charge customers a booking fee per order (currently €0)</p></div>
+                <label class="tog"><input type="checkbox" onchange="notify('Booking fees '+(this.checked?'enabled':'disabled'))"><div class="tog-track"></div></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-info"><h4>New Provider Registrations</h4><p>Allow new dry cleaners to apply to join the platform</p></div>
+                <label class="tog"><input type="checkbox" checked onchange="notify('Registrations '+(this.checked?'open':'closed'))"><div class="tog-track"></div></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-info"><h4>Email Notifications</h4><p>Send automated order update emails to customers</p></div>
+                <label class="tog"><input type="checkbox" checked onchange="notify('Email notifications '+(this.checked?'enabled':'disabled'))"><div class="tog-track"></div></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-info"><h4>SMS Alerts</h4><p>Send SMS updates at pickup and delivery stages</p></div>
+                <label class="tog"><input type="checkbox" checked onchange="notify('SMS alerts '+(this.checked?'enabled':'disabled'))"><div class="tog-track"></div></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-info"><h4>Maintenance Mode</h4><p>Take the public-facing site offline for maintenance</p></div>
+                <label class="tog"><input type="checkbox" onchange="notify('Maintenance mode '+(this.checked?'ON — site offline':'OFF — site live'))"><div class="tog-track"></div></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-info"><h4>Auto-approve Providers</h4><p>Skip manual review for providers with verified documents</p></div>
+                <label class="tog"><input type="checkbox" onchange="notify('Auto-approve '+(this.checked?'enabled':'disabled'))"><div class="tog-track"></div></label>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="settings-section">
+              <h3>Active Cities</h3>
+              <div class="city-tags" id="cityTags"></div>
+              <div class="add-city">
+                <input type="text" id="newCityInput" placeholder="Add new city…" onkeydown="if(event.key==='Enter')addCity()">
+                <button class="btn btn-gold" onclick="addCity()">Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div class="notif-panel" id="notifPanel">
+  <div class="np-head">Notifications <button onclick="closeNotifs()">Mark all read</button></div>
+  <div class="ni"><span class="ni-dot"></span><span class="ni-ico">🏪</span><div><p><strong>Rome Prestige Clean</strong> applied to join as a provider.</p><time>2 min ago</time></div></div>
+  <div class="ni"><span class="ni-dot"></span><span class="ni-ico">📦</span><div><p>Order <strong>CV-2025-010</strong> marked as delivered.</p><time>14 min ago</time></div></div>
+  <div class="ni"><span class="ni-dot"></span><span class="ni-ico">⭐</span><div><p>New 5-star review for <strong>Vienna Premium</strong>.</p><time>1 hr ago</time></div></div>
+  <div class="ni"><span class="ni-ico">💰</span><div><p>Weekly payouts of <strong>€12,450</strong> are due Friday.</p><time>3 hr ago</time></div></div>
+  <div class="ni"><span class="ni-ico">🏪</span><div><p><strong>Madrid Fresh Laundry</strong> applied to join.</p><time>5 hr ago</time></div></div>
+</div>
+
+<!-- PROVIDER DETAIL MODAL -->
+<div class="overlay" id="provModal">
+  <div class="modal" style="max-width:560px">
+    <div class="mhd">
+      <div><h2 id="provModalTitle">Provider Details</h2><p id="provModalSub"></p></div>
+      <button class="mx" onclick="closeModal('provModal')">✕</button>
+    </div>
+    <div class="detail-grid" id="provModalBody"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap" id="provModalActions"></div>
+  </div>
+</div>
+
+<!-- ADD PROVIDER MODAL -->
+<div class="overlay" id="addProvModal">
+  <div class="modal">
+    <div class="mhd"><div><h2>Add New Provider</h2><p>Manually onboard a new dry cleaning partner</p></div><button class="mx" onclick="closeModal('addProvModal')">✕</button></div>
+    <form onsubmit="submitProvider(event)">
+      <div class="mf-2">
+        <div class="mf"><label>Business Name *</label><input required placeholder="e.g. Berlin Prestige Clean"></div>
+        <div class="mf"><label>City *</label><input required placeholder="e.g. Berlin, Germany"></div>
+      </div>
+      <div class="mf-2">
+        <div class="mf"><label>Email *</label><input type="email" required placeholder="info@business.com"></div>
+        <div class="mf"><label>Phone *</label><input type="tel" required placeholder="+49 30 000 0000"></div>
+      </div>
+      <div class="mf-2">
+        <div class="mf"><label>Primary Service</label><select><option>Dry Cleaning</option><option>Wash & Fold</option><option>All Services</option></select></div>
+        <div class="mf"><label>Commission Plan</label><select><option value="18">Starter — 18%</option><option value="15" selected>Growth — 15%</option><option value="12">Premium — 12%</option></select></div>
+      </div>
+      <div class="mf"><label>Notes</label><textarea placeholder="Any additional notes…"></textarea></div>
+      <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;padding:12px;margin-top:6px">Add Provider</button>
+    </form>
+  </div>
+</div>
+
+<!-- ADD SERVICE MODAL -->
+<div class="overlay" id="addSvcModal">
+  <div class="modal">
+    <div class="mhd"><div><h2>Add New Service</h2><p>Create a new service offering for the platform</p></div><button class="mx" onclick="closeModal('addSvcModal')">✕</button></div>
+    <form onsubmit="submitService(event)">
+      <div class="mf-2">
+        <div class="mf"><label>Service Name *</label><input required placeholder="e.g. Leather Cleaning"></div>
+        <div class="mf"><label>Icon (emoji)</label><input placeholder="👜" maxlength="4"></div>
+      </div>
+      <div class="mf-2">
+        <div class="mf"><label>Base Price (€) *</label><input type="number" required step="0.01" min="0" placeholder="0.00"></div>
+        <div class="mf"><label>Category</label><select><option>Garments</option><option>Household</option><option>Express</option></select></div>
+      </div>
+      <div class="mf"><label>Description</label><textarea placeholder="Brief description shown to customers…"></textarea></div>
+      <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;padding:12px;margin-top:6px">Add Service</button>
+    </form>
+  </div>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="overlay" id="orderModal">
+  <div class="modal" style="max-width:560px">
+    <div class="mhd"><div><h2 id="orderModalTitle">Order Details</h2><p id="orderModalSub"></p></div><button class="mx" onclick="closeModal('orderModal')">✕</button></div>
+    <div class="detail-grid" id="orderModalBody"></div>
+    <div class="mf" style="margin-top:4px">
+      <label>Update Status</label>
+      <select id="orderStatusSel" style="width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;outline:none">
+        <option value="confirmed">Confirmed</option>
+        <option value="pickup">Picked Up</option>
+        <option value="cleaning">Being Cleaned</option>
+        <option value="delivery">Out for Delivery</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-gold" style="flex:1;justify-content:center" onclick="saveOrderStatus()">Save Changes</button>
+      <button class="btn btn-out" onclick="closeModal('orderModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ SANITIZE ══ */
+function _s(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');}
+
+/* ══ DATA ══ */
+const ORDERS = [
+  {id:'CV-2025-001',customer:'Sophie Martin',email:'sophie@email.com',city:'Paris',provider:'Vienna Premium',service:'Dry Cleaning',items:'3 items',amount:28.50,commission:4.28,status:'delivered',date:'2025-05-02'},
+  {id:'CV-2025-002',customer:'Marco Terroni',email:'marco@email.it',city:'Milan',provider:'Berlin Wash Co.',service:'Wash & Fold',items:'1 bag',amount:18.00,commission:2.70,status:'delivery',date:'2025-05-02'},
+  {id:'CV-2025-003',customer:'Emma Schmidt',email:'emma@email.de',city:'Berlin',provider:'Berlin Wash Co.',service:'Shirt Laundry',items:'5 shirts',amount:14.50,commission:2.18,status:'cleaning',date:'2025-05-02'},
+  {id:'CV-2025-004',customer:'Lars Kowalski',email:'lars@email.dk',city:'Copenhagen',provider:'Amsterdam EcoClean',service:'Duvet Clean',items:'2 duvets',amount:44.00,commission:6.60,status:'pickup',date:'2025-05-02'},
+  {id:'CV-2025-005',customer:'Isabelle Dubois',email:'isa@email.fr',city:'Paris',provider:'Paris Couture Care',service:'Wedding Dress',items:'1 gown',amount:95.00,commission:11.40,status:'confirmed',date:'2025-05-02'},
+  {id:'CV-2025-006',customer:'Hans Müller',email:'hans@email.de',city:'Vienna',provider:'Vienna Premium',service:'Ironing',items:'8 items',amount:18.00,commission:2.70,status:'delivered',date:'2025-05-01'},
+  {id:'CV-2025-007',customer:'Chiara Romano',email:'chiara@email.it',city:'Rome',provider:'Paris Couture Care',service:'Dry Cleaning',items:'2 items',amount:12.50,commission:1.50,status:'delivered',date:'2025-05-01'},
+  {id:'CV-2025-008',customer:'Jan Bakker',email:'jan@email.nl',city:'Amsterdam',provider:'Amsterdam EcoClean',service:'Wash & Fold',items:'2 bags',amount:32.00,commission:4.80,status:'cancelled',date:'2025-05-01'},
+  {id:'CV-2025-009',customer:'Ana Garcia',email:'ana@email.es',city:'Madrid',provider:'Berlin Wash Co.',service:'Shirt Laundry',items:'10 shirts',amount:27.50,commission:4.13,status:'delivered',date:'2025-05-01'},
+  {id:'CV-2025-010',customer:'Pierre Laurent',email:'pierre@email.fr',city:'Lyon',provider:'Vienna Premium',service:'Dry Cleaning',items:'4 items',amount:22.00,commission:3.30,status:'delivered',date:'2025-04-30'},
+];
+
+const PROVIDERS = [
+  {id:'PRV-001',name:'Vienna Premium Cleaners',city:'Vienna',country:'Austria',email:'info@vpc.at',phone:'+43 1 000 0000',rating:4.9,reviews:847,orders:847,revenue:24350,commission:15,plan:'Growth',status:'active',joined:'2024-01-15',services:'Dry Cleaning, Cashmere'},
+  {id:'PRV-002',name:'Berlin Wash Co.',city:'Berlin',country:'Germany',email:'info@bwc.de',phone:'+49 30 000 0000',rating:4.8,reviews:1203,orders:1203,revenue:31200,commission:15,plan:'Growth',status:'active',joined:'2023-11-20',services:'Wash & Fold, Shirts'},
+  {id:'PRV-003',name:'Paris Couture Care',city:'Paris',country:'France',email:'info@pcc.fr',phone:'+33 1 00 00 00 00',rating:5.0,reviews:312,orders:312,revenue:28900,commission:12,plan:'Premium',status:'active',joined:'2024-03-01',services:'Luxury, Bridal'},
+  {id:'PRV-004',name:'Amsterdam EcoClean',city:'Amsterdam',country:'Netherlands',email:'info@aec.nl',phone:'+31 20 000 0000',rating:4.9,reviews:621,orders:621,revenue:16800,commission:15,plan:'Growth',status:'active',joined:'2024-02-10',services:'Eco, Household'},
+  {id:'PRV-005',name:'Rome Prestige Clean',city:'Rome',country:'Italy',email:'info@rpc.it',phone:'+39 06 000 0000',rating:0,reviews:0,orders:0,revenue:0,commission:18,plan:'Starter',status:'pending',joined:'2025-05-01',services:'Dry Cleaning'},
+  {id:'PRV-006',name:'Madrid Fresh Laundry',city:'Madrid',country:'Spain',email:'info@mfl.es',phone:'+34 91 000 0000',rating:4.2,reviews:89,orders:89,revenue:2100,commission:18,plan:'Starter',status:'suspended',joined:'2024-06-15',services:'Wash & Fold'},
+];
+
+const CUSTOMERS = [
+  {id:'CUS-001',name:'Sophie Martin',email:'sophie@email.com',city:'Paris',country:'France',orders:8,spent:214.50,joined:'2024-02-01',status:'active'},
+  {id:'CUS-002',name:'Marco Terroni',email:'marco@email.it',city:'Milan',country:'Italy',orders:5,spent:128.00,joined:'2024-03-15',status:'active'},
+  {id:'CUS-003',name:'Emma Schmidt',email:'emma@email.de',city:'Berlin',country:'Germany',orders:12,spent:312.50,joined:'2023-12-01',status:'active'},
+  {id:'CUS-004',name:'Lars Kowalski',email:'lars@email.dk',city:'Copenhagen',country:'Denmark',orders:3,spent:89.00,joined:'2024-09-10',status:'active'},
+  {id:'CUS-005',name:'Isabelle Dubois',email:'isa@email.fr',city:'Paris',country:'France',orders:2,spent:105.00,joined:'2025-01-20',status:'active'},
+  {id:'CUS-006',name:'Hans Müller',email:'hans@email.de',city:'Vienna',country:'Austria',orders:20,spent:510.00,joined:'2023-09-05',status:'active'},
+  {id:'CUS-007',name:'Chiara Romano',email:'chiara@email.it',city:'Rome',country:'Italy',orders:1,spent:12.50,joined:'2025-04-22',status:'active'},
+  {id:'CUS-008',name:'Jan Bakker',email:'jan@email.nl',city:'Amsterdam',country:'Netherlands',orders:4,spent:96.00,joined:'2024-07-30',status:'blocked'},
+];
+
+const SERVICES = [
+  {id:'s1',name:'Dry Cleaning',icon:'👔',price:4.99,category:'Garments',active:true},
+  {id:'s2',name:'Wash & Fold',icon:'🧺',price:15.00,category:'Garments',active:true},
+  {id:'s3',name:'Shirt Laundry',icon:'👕',price:2.50,category:'Garments',active:true},
+  {id:'s4',name:'Ironing',icon:'🧲',price:2.00,category:'Express',active:true},
+  {id:'s5',name:'Duvet & Bedding',icon:'🛏️',price:19.99,category:'Household',active:true},
+  {id:'s6',name:'Wedding Dress',icon:'💍',price:89.99,category:'Garments',active:true},
+];
+
+const CITIES = ['Paris','Berlin','Vienna','Amsterdam','Milan','Rome','Madrid','Copenhagen','Munich','Brussels','Zurich','Stockholm','Prague','Warsaw','Lisbon'];
+
+const TIERS = [
+  {name:'Starter',rate:18,providers:['PRV-005','PRV-006'],limit:'50 orders/month'},
+  {name:'Growth',rate:15,providers:['PRV-001','PRV-002','PRV-004'],limit:'Unlimited'},
+  {name:'Premium',rate:12,providers:['PRV-003'],limit:'Unlimited'},
+];
+
+const REV_7  = {vals:[1240,1860,1420,2100,1780,2450,980],labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun']};
+const REV_30 = {vals:[4200,5100,3800,6200,5800,4900,7100,5600,4300,6800,5200,4700,6100,5900,4100,7300,6500,4800,5700,6900,5300,4600,7000,6200,5100,4400,6600,5800,4900,6100],labels:Array.from({length:30},(_,i)=>`${i+1}`)};
+
+/* ══ STATE ══ */
+let filters={orders:'all',prov:'all',cust:'all'};
+let currentOrderId=null;
+let activeCities=[...CITIES];
+
+/* ══ AUTH ══ */
+let _loginAttempts=0,_loginLocked=false;
+function doLogin(){
+  if(_loginLocked) return;
+  const pass=document.getElementById('lpass').value;
+  const err=document.getElementById('loginErr');
+  if(pass==='Najeel9090@'){
+    _loginAttempts=0;
+    document.getElementById('lpass').value='';
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('adminApp').style.display='block';
+    initApp();
+  } else {
+    _loginAttempts++;
+    const left=5-_loginAttempts;
+    if(left<=0){
+      _loginLocked=true;
+      err.textContent='Too many failed attempts. Refresh the page to try again.';
+      err.style.display='block';
+      document.getElementById('lpass').disabled=true;
+      document.getElementById('loginBtn').disabled=true;
+      document.getElementById('loginBtn').style.opacity='0.5';
+      return;
+    }
+    err.textContent='Incorrect password. '+left+' attempt'+(left!==1?'s':'')+' remaining.';
+    err.style.display='block';
+    setTimeout(()=>{ if(!_loginLocked) err.style.display='none'; },3000);
+  }
+}
+function doLogout(){
+  document.getElementById('adminApp').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('lpass').value='';
+  document.getElementById('lpass').disabled=false;
+  document.getElementById('loginBtn').disabled=false;
+  document.getElementById('loginBtn').style.opacity='';
+  _loginAttempts=0; _loginLocked=false;
+}
+
+/* ══ NAV ══ */
+const TITLES={
+  dashboard:['Dashboard','Welcome back — here\'s what\'s happening today'],
+  orders:['Orders','Manage and update all customer orders'],
+  providers:['Providers','Onboard, approve, and manage dry cleaning partners'],
+  customers:['Customers','View and manage your customer base'],
+  revenue:['Revenue & Payouts','Track earnings and process weekly payouts'],
+  services:['Services & Pricing','Control what services appear on the platform'],
+  settings:['Platform Settings','Configure commission rates, cities and toggles'],
+};
+
+function nav(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sb-nav li a').forEach(a=>a.classList.remove('on'));
+  document.getElementById('pnl-'+id).classList.add('on');
+  document.getElementById('nav-'+id).classList.add('on');
+  const t=TITLES[id]||[id,''];
+  document.getElementById('pageTitle').innerHTML=`<h1>${t[0]}</h1><p>${t[1]}</p>`;
+  closeSidebar();
+  if(id==='orders') renderOrders();
+  if(id==='providers') renderProviders();
+  if(id==='customers') renderCustomers();
+  if(id==='revenue') renderRevenue();
+  if(id==='services') renderServices();
+  if(id==='settings') renderSettings();
+}
+
+function openSidebar(){document.getElementById('sidebar').classList.add('mob-open');document.getElementById('sbBg').classList.add('open')}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('sbBg').classList.remove('open')}
+
+function setFilter(type,val,btn){
+  filters[type]=val;
+  btn.closest('.ftabs').querySelectorAll('.ft').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(type==='orders') renderOrders();
+  if(type==='prov') renderProviders();
+  if(type==='cust') renderCustomers();
+}
+
+/* ══ MODALS ══ */
+function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden'}
+function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow=''}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id)}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay.open').forEach(o=>closeModal(o.id))});
+
+/* ══ NOTIFICATIONS ══ */
+function toggleNotifs(){document.getElementById('notifPanel').classList.toggle('open')}
+function closeNotifs(){document.getElementById('notifPanel').classList.remove('open')}
+document.addEventListener('click',e=>{if(!e.target.closest('#notifPanel')&&!e.target.closest('.tb-btn'))closeNotifs()});
+
+/* ══ INIT ══ */
+function initApp(){
+  setDate();
+  renderDashStats();
+  renderRevenueChart('revChart','revLabels',REV_7);
+  renderSvcBars();
+  renderDashOrders();
+  renderTopProviders();
+  renderCityTags();
+  renderTierGrid();
+  // mob-toggle visibility is handled by CSS media query
+}
+
+function setDate(){
+  document.getElementById('tbDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+}
+
+/* ══ DASHBOARD ══ */
+function renderDashStats(){
+  const todayRev=ORDERS.filter(o=>o.date==='2025-05-02').reduce((s,o)=>s+o.amount,0);
+  const todayComm=ORDERS.filter(o=>o.date==='2025-05-02').reduce((s,o)=>s+o.commission,0);
+  const activeProvs=PROVIDERS.filter(p=>p.status==='active').length;
+  const pendingProvs=PROVIDERS.filter(p=>p.status==='pending').length;
+  const cards=[
+    {icon:'💰',color:'rgba(201,168,76,.12)',val:'€'+todayRev.toFixed(2),lbl:"Today's Revenue",delta:'+12%',up:true},
+    {icon:'📦',color:'rgba(11,31,58,.08)',val:ORDERS.length,lbl:'Total Orders',delta:'+8%',up:true},
+    {icon:'🏪',color:'rgba(5,150,105,.1)',val:activeProvs,lbl:'Active Providers',delta:pendingProvs+' pending',up:false},
+    {icon:'💸',color:'rgba(59,130,246,.1)',val:'€'+todayComm.toFixed(2),lbl:'Commission Earned Today',delta:'+15%',up:true},
+  ];
+  document.getElementById('dashStats').innerHTML=cards.map(c=>`
+    <div class="sc">
+      <div class="sc-top">
+        <div class="sc-icon" style="background:${c.color}">${c.icon}</div>
+        <span class="delta ${c.up?'up':'dn'}">${c.delta}</span>
+      </div>
+      <div class="sc-val">${c.val}</div>
+      <div class="sc-lbl">${c.lbl}</div>
+    </div>`).join('');
+}
+
+function renderDashOrders(){
+  document.getElementById('dashOrders').innerHTML=`
+    <thead><tr><th>Order</th><th>Customer</th><th>Service</th><th>Amount</th><th>Status</th></tr></thead>
+    <tbody>${ORDERS.slice(0,5).map(o=>`
+      <tr>
+        <td><strong>${o.id}</strong></td>
+        <td>${o.customer}</td>
+        <td>${o.service}</td>
+        <td><strong>€${o.amount.toFixed(2)}</strong></td>
+        <td><span class="badge b-${o.status}">${statusLabel(o.status)}</span></td>
+      </tr>`).join('')}</tbody>`;
+}
+
+function renderTopProviders(){
+  const colors=['linear-gradient(135deg,#0B1F3A,#1a3660)','linear-gradient(135deg,#1a1a2e,#16213e)','linear-gradient(135deg,#7c1520,#c0392b)','linear-gradient(135deg,#064e3b,#059669)'];
+  const sorted=[...PROVIDERS].filter(p=>p.status==='active').sort((a,b)=>b.revenue-a.revenue).slice(0,4);
+  document.getElementById('topProviders').innerHTML=sorted.map((p,i)=>`
+    <div class="pmi">
+      <div class="pmi-av" style="background:${colors[i]}">${p.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+      <div><div class="pmi-name">${p.name}</div><div class="pmi-sub">⭐${p.rating} · ${p.orders} orders</div></div>
+      <div class="pmi-rev">€${(p.revenue/1000).toFixed(1)}k</div>
+    </div>`).join('');
+}
+
+/* ══ CHARTS ══ */
+function renderRevenueChart(svgId,lblId,data){
+  const svg=document.getElementById(svgId);
+  if(!svg) return;
+  const W=600,H=160,pad=20;
+  const max=Math.max(...data.vals);
+  const pts=data.vals.map((v,i)=>[pad+(i/(data.vals.length-1))*(W-pad*2), pad+(1-v/max)*(H-pad*2)]);
+  const line=pts.map((p,i)=>(i===0?'M':'L')+p[0]+','+p[1]).join(' ');
+  const area=line+` L${pts[pts.length-1][0]},${H} L${pts[0][0]},${H} Z`;
+  const dots=pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#C9A84C" stroke="white" stroke-width="2"><title>€${data.vals[i].toLocaleString()}</title></circle>`).join('');
+  svg.innerHTML=`<defs><linearGradient id="rg${svgId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C9A84C" stop-opacity=".25"/><stop offset="100%" stop-color="#C9A84C" stop-opacity=".02"/></linearGradient></defs>
+    <path d="${area}" fill="url(#rg${svgId})"/>
+    <path d="${line}" fill="none" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}`;
+  const lbl=document.getElementById(lblId);
+  if(lbl) lbl.innerHTML=data.labels.map(l=>`<span>${l}</span>`).join('');
+}
+
+function updateRevenueChart(days){
+  const data=days==='7'?REV_7:REV_30;
+  renderRevenueChart('revChart','revLabels',data);
+  // Also update Revenue panel chart if it's rendered
+  const rc2=document.getElementById('revChart2');
+  if(rc2&&rc2.innerHTML!=='') renderRevenueChart('revChart2','revLabels2',data);
+}
+
+function renderSvcBars(){
+  const counts={'Dry Cleaning':0,'Wash & Fold':0,'Shirt Laundry':0,'Ironing':0,'Duvet Clean':0,'Wedding Dress':0};
+  ORDERS.forEach(o=>{if(counts[o.service]!==undefined) counts[o.service]++});
+  const max=Math.max(...Object.values(counts));
+  document.getElementById('svcBars').innerHTML=Object.entries(counts).map(([k,v])=>`
+    <div class="bar-row">
+      <span class="bar-lbl">${k}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${max?v/max*100:0}%"></div></div>
+      <span class="bar-num">${v}</span>
+    </div>`).join('');
+}
+
+/* ══ ORDERS ══ */
+function statusLabel(s){return{confirmed:'Confirmed',pickup:'Picked Up',cleaning:'Cleaning',delivery:'Out for Delivery',delivered:'Delivered',cancelled:'Cancelled'}[s]||s}
+
+function renderOrders(){
+  const q=(document.getElementById('orderSearch')?.value||'').toLowerCase();
+  const rows=ORDERS.filter(o=>{
+    const mF=filters.orders==='all'||o.status===filters.orders;
+    const mQ=!q||[o.id,o.customer,o.provider,o.service].some(f=>f&&f.toLowerCase().includes(q));
+    return mF&&mQ;
+  });
+  document.getElementById('ordersTable').innerHTML=`
+    <thead><tr><th>Order ID</th><th>Customer</th><th>Provider</th><th>Service</th><th>Amount</th><th>Commission</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+    <tbody>${rows.map(o=>`
+      <tr>
+        <td><strong>${o.id}</strong></td>
+        <td><div style="font-weight:600">${o.customer}</div><div style="font-size:.72rem;color:var(--muted)">${o.city}</div></td>
+        <td>${o.provider}</td>
+        <td>${o.service}<div style="font-size:.72rem;color:var(--muted)">${o.items}</div></td>
+        <td><strong>€${o.amount.toFixed(2)}</strong></td>
+        <td style="color:var(--gold-d);font-weight:600">€${o.commission.toFixed(2)}</td>
+        <td><span class="badge b-${o.status}">${statusLabel(o.status)}</span></td>
+        <td style="font-size:.78rem;color:var(--muted)">${o.date}</td>
+        <td><button class="btn btn-out btn-sm" onclick="openOrderDetail('${o.id}')">View</button></td>
+      </tr>`).join('')}</tbody>`;
+  document.getElementById('ordersInfo').textContent=`Showing ${rows.length} of ${ORDERS.length} orders`;
+}
+
+function openOrderDetail(id){
+  const o=ORDERS.find(x=>x.id===id);
+  if(!o) return;
+  currentOrderId=id;
+  document.getElementById('orderModalTitle').textContent='Order '+o.id;
+  document.getElementById('orderModalSub').textContent=o.service+' · '+o.items+' · '+o.date;
+  document.getElementById('orderModalBody').innerHTML=`
+    <div class="dg-item"><label>Customer</label><span>${o.customer}</span></div>
+    <div class="dg-item"><label>Email</label><span>${o.email}</span></div>
+    <div class="dg-item"><label>City</label><span>${o.city}</span></div>
+    <div class="dg-item"><label>Provider</label><span>${o.provider}</span></div>
+    <div class="dg-item"><label>Service</label><span>${o.service}</span></div>
+    <div class="dg-item"><label>Items</label><span>${o.items}</span></div>
+    <div class="dg-item"><label>Amount</label><span style="font-weight:700">€${o.amount.toFixed(2)}</span></div>
+    <div class="dg-item"><label>Commission</label><span style="font-weight:700;color:var(--gold-d)">€${o.commission.toFixed(2)}</span></div>`;
+  document.getElementById('orderStatusSel').value=o.status;
+  openModal('orderModal');
+}
+
+function saveOrderStatus(){
+  const o=ORDERS.find(x=>x.id===currentOrderId);
+  if(!o) return;
+  o.status=document.getElementById('orderStatusSel').value;
+  closeModal('orderModal');
+  renderOrders();
+  renderDashOrders();
+  notify('Order '+o.id+' updated to: '+statusLabel(o.status));
+}
+
+/* ══ PROVIDERS ══ */
+const PROV_COLORS={'PRV-001':'linear-gradient(135deg,#0B1F3A,#1a3660)','PRV-002':'linear-gradient(135deg,#1a1a2e,#16213e)','PRV-003':'linear-gradient(135deg,#7c1520,#c0392b)','PRV-004':'linear-gradient(135deg,#064e3b,#059669)','PRV-005':'linear-gradient(135deg,#78350f,#d97706)','PRV-006':'linear-gradient(135deg,#581c87,#9333ea)'};
+
+function renderProviders(){
+  const q=(document.getElementById('provSearch')?.value||'').toLowerCase();
+  const rows=PROVIDERS.filter(p=>{
+    const mF=filters.prov==='all'||p.status===filters.prov;
+    const mQ=!q||[p.name,p.city,p.email].some(f=>f&&f.toLowerCase().includes(q));
+    return mF&&mQ;
+  });
+  document.getElementById('provTable').innerHTML=`
+    <thead><tr><th>Provider</th><th>City</th><th>Rating</th><th>Orders</th><th>Revenue</th><th>Commission</th><th>Plan</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${rows.map(p=>`
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:9px">
+          <div style="width:32px;height:32px;border-radius:8px;background:${PROV_COLORS[p.id]||'var(--navy)'};display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:white;flex-shrink:0">${p.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+          <div><div style="font-weight:600;font-size:.85rem">${p.name}</div><div style="font-size:.71rem;color:var(--muted)">${p.email}</div></div>
+        </div></td>
+        <td>${p.city}, ${p.country}</td>
+        <td>${p.rating>0?'⭐'+p.rating+' ('+p.reviews+')':'<span style="color:var(--sub)">No reviews</span>'}</td>
+        <td><strong>${p.orders}</strong></td>
+        <td style="font-weight:600">€${p.revenue.toLocaleString()}</td>
+        <td><input type="number" class="pinput" value="${p.commission}" min="1" max="30" style="width:60px" onchange="updateCommission('${p.id}',this.value)">%</td>
+        <td><span class="badge b-${p.plan.toLowerCase()}">${p.plan}</span></td>
+        <td><span class="badge b-${p.status}">${p.status.charAt(0).toUpperCase()+p.status.slice(1)}</span></td>
+        <td><div class="tbl-acts">
+          <button class="btn btn-out btn-sm" onclick="openProvDetail('${p.id}')">View</button>
+          ${p.status==='pending'?`<button class="btn btn-success btn-sm" onclick="approveProvider('${p.id}')">Approve</button>`:''}
+          ${p.status==='active'?`<button class="btn btn-warn btn-sm" onclick="suspendProvider('${p.id}')">Suspend</button>`:''}
+          ${p.status==='suspended'?`<button class="btn btn-success btn-sm" onclick="approveProvider('${p.id}')">Reinstate</button>`:''}
+        </div></td>
+      </tr>`).join('')}</tbody>`;
+  document.getElementById('provInfo').textContent=`Showing ${rows.length} of ${PROVIDERS.length} providers`;
+  const pend=PROVIDERS.filter(p=>p.status==='pending').length;
+  const nb=document.getElementById('nb-prov');
+  nb.textContent=pend; nb.style.display=pend?'':'none';
+}
+
+function openProvDetail(id){
+  const p=PROVIDERS.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('provModalTitle').textContent=p.name;
+  document.getElementById('provModalSub').textContent=p.city+', '+p.country+' · Joined '+p.joined;
+  document.getElementById('provModalBody').innerHTML=`
+    <div class="dg-item"><label>Provider ID</label><span>${p.id}</span></div>
+    <div class="dg-item"><label>Status</label><span><span class="badge b-${p.status}">${p.status}</span></span></div>
+    <div class="dg-item"><label>Email</label><span>${p.email}</span></div>
+    <div class="dg-item"><label>Phone</label><span>${p.phone}</span></div>
+    <div class="dg-item"><label>Services</label><span>${p.services}</span></div>
+    <div class="dg-item"><label>Plan</label><span><span class="badge b-${p.plan.toLowerCase()}">${p.plan} — ${p.commission}%</span></span></div>
+    <div class="dg-item"><label>Total Orders</label><span><strong>${p.orders}</strong></span></div>
+    <div class="dg-item"><label>Total Revenue</label><span style="font-weight:700;color:var(--gold-d)">€${p.revenue.toLocaleString()}</span></div>
+    <div class="dg-item"><label>Rating</label><span>${p.rating>0?'⭐ '+p.rating+' ('+p.reviews+' reviews)':'No reviews yet'}</span></div>
+    <div class="dg-item"><label>Joined</label><span>${p.joined}</span></div>`;
+  document.getElementById('provModalActions').innerHTML=`
+    ${p.status==='pending'?`<button class="btn btn-success" onclick="approveProvider('${p.id}');closeModal('provModal')">✓ Approve</button>`:''}
+    ${p.status==='active'?`<button class="btn btn-warn" onclick="suspendProvider('${p.id}');closeModal('provModal')">Suspend</button>`:''}
+    ${p.status==='suspended'?`<button class="btn btn-success" onclick="approveProvider('${p.id}');closeModal('provModal')">Reinstate</button>`:''}
+    <button class="btn btn-out" onclick="closeModal('provModal')">Close</button>`;
+  openModal('provModal');
+}
+
+function approveProvider(id){
+  const p=PROVIDERS.find(x=>x.id===id);
+  if(!p) return;
+  p.status='active'; renderProviders();
+  notify(p.name+' has been approved ✅');
+}
+function suspendProvider(id){
+  const p=PROVIDERS.find(x=>x.id===id);
+  if(!p) return;
+  p.status='suspended'; renderProviders();
+  notify(p.name+' has been suspended ⚠️');
+}
+function updateCommission(id,val){
+  const p=PROVIDERS.find(x=>x.id===id);
+  if(!p) return;
+  const n=parseFloat(val);
+  if(isNaN(n)||n<1||n>50) return;
+  p.commission=Math.round(n*10)/10;
+  notify('Commission for '+p.name+' updated to '+p.commission+'%');
+}
+function submitProvider(e){
+  e.preventDefault();
+  e.target.reset();
+  closeModal('addProvModal');
+  notify('New provider added and pending review 🏪');
+}
+
+/* ══ CUSTOMERS ══ */
+function renderCustomers(){
+  const q=(document.getElementById('custSearch')?.value||'').toLowerCase();
+  const rows=CUSTOMERS.filter(c=>{
+    const mF=filters.cust==='all'||c.status===filters.cust;
+    const mQ=!q||[c.name,c.email,c.city].some(f=>f&&f.toLowerCase().includes(q));
+    return mF&&mQ;
+  });
+  document.getElementById('custTable').innerHTML=`
+    <thead><tr><th>Customer</th><th>City</th><th>Orders</th><th>Total Spent</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${rows.map(c=>`
+      <tr>
+        <td><div style="font-weight:600">${c.name}</div><div style="font-size:.72rem;color:var(--muted)">${c.email}</div></td>
+        <td>${c.city}, ${c.country}</td>
+        <td><strong>${c.orders}</strong></td>
+        <td style="font-weight:600">€${c.spent.toFixed(2)}</td>
+        <td style="font-size:.78rem;color:var(--muted)">${c.joined}</td>
+        <td><span class="badge ${c.status==='active'?'b-active':'b-blocked'}">${c.status.charAt(0).toUpperCase()+c.status.slice(1)}</span></td>
+        <td>${c.status==='active'
+          ?`<button class="btn btn-danger btn-sm" onclick="blockCustomer('${c.id}')">Block</button>`
+          :`<button class="btn btn-success btn-sm" onclick="unblockCustomer('${c.id}')">Unblock</button>`}</td>
+      </tr>`).join('')}</tbody>`;
+  document.getElementById('custInfo').textContent=`Showing ${rows.length} of ${CUSTOMERS.length} customers`;
+}
+function blockCustomer(id){const c=CUSTOMERS.find(x=>x.id===id);if(!c)return;c.status='blocked';renderCustomers();notify(c.name+' has been blocked')}
+function unblockCustomer(id){const c=CUSTOMERS.find(x=>x.id===id);if(!c)return;c.status='active';renderCustomers();notify(c.name+' has been unblocked ✅')}
+
+/* ══ REVENUE ══ */
+function renderRevenue(){
+  const totalRev=ORDERS.reduce((s,o)=>s+o.amount,0);
+  const totalComm=ORDERS.reduce((s,o)=>s+o.commission,0);
+  const pending=PROVIDERS.filter(p=>p.status==='active').reduce((s,p)=>s+(p.revenue*p.commission/100),0);
+  document.getElementById('revSum').innerHTML=`
+    <div class="rsc"><div class="rsc-lbl">Total Revenue (All Time)</div><div class="rsc-val">€${totalRev.toFixed(2)}</div></div>
+    <div class="rsc"><div class="rsc-lbl">Platform Commission Earned</div><div class="rsc-val gold">€${totalComm.toFixed(2)}</div></div>
+    <div class="rsc"><div class="rsc-lbl">Pending Provider Payouts</div><div class="rsc-val">€${(pending/1000).toFixed(1)}k</div></div>
+    <div class="rsc"><div class="rsc-lbl">Active Provider Count</div><div class="rsc-val">${PROVIDERS.filter(p=>p.status==='active').length}</div></div>`;
+  // FIXED: render both charts
+  renderRevenueChart('revChart2','revLabels2',REV_7);
+  const active=PROVIDERS.filter(p=>p.status==='active');
+  const maxComm=Math.max(...active.map(p=>p.revenue*p.commission/100));
+  document.getElementById('commBars').innerHTML=active.map(p=>{
+    const comm=p.revenue*p.commission/100;
+    return `<div class="bar-row">
+      <span class="bar-lbl">${p.name.split(' ').slice(0,2).join(' ')}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${maxComm?comm/maxComm*100:0}%"></div></div>
+      <span class="bar-num" style="width:48px;font-size:.72rem">€${(comm/1000).toFixed(1)}k</span>
+    </div>`;}).join('');
+  document.getElementById('payoutTable').innerHTML=`
+    <thead><tr><th>Provider</th><th>City</th><th>Orders This Week</th><th>Gross Revenue</th><th>Commission</th><th>Net Payout</th><th>Action</th></tr></thead>
+    <tbody>${active.map(p=>{
+      const weeklyOrders=Math.max(1,Math.round(p.orders/52));
+      const gross=Math.round(p.revenue/52*100)/100;
+      const comm=Math.round(gross*p.commission)/100;
+      const net=Math.round((gross-comm)*100)/100;
+      return `<tr>
+        <td><strong>${_s(p.name)}</strong></td>
+        <td>${_s(p.city)}</td>
+        <td>${weeklyOrders}</td>
+        <td>€${gross.toFixed(2)}</td>
+        <td style="color:var(--gold-d);font-weight:600">€${comm.toFixed(2)}</td>
+        <td style="font-weight:700">€${net.toFixed(2)}</td>
+        <td><button class="btn btn-success btn-sm" onclick="notify('Payout of €${net.toFixed(2)} sent ✅')">Pay Now</button></td>
+      </tr>`;}).join('')}</tbody>`;
+}
+
+/* ══ SERVICES ══ */
+function renderServices(){
+  document.getElementById('svcGrid').innerHTML=SERVICES.map(s=>`
+    <div class="svc-adm">
+      <div class="svc-adm-top">
+        <div>
+          <div class="svc-adm-icon">${s.icon}</div>
+          <div class="svc-adm-nm">${s.name}</div>
+          <div class="svc-adm-cat">${s.category}</div>
+        </div>
+        <label class="tog">
+          <input type="checkbox" ${s.active?'checked':''} onchange="toggleService('${s.id}',this.checked)">
+          <div class="tog-track"></div>
+        </label>
+      </div>
+      <div class="price-row">
+        <span>From €</span>
+        <input class="pinput" type="number" step="0.01" min="0" value="${s.price.toFixed(2)}" onchange="updateSvcPrice('${s.id}',this.value)">
+        <span style="font-size:.72rem;color:var(--sub)">base price</span>
+      </div>
+    </div>`).join('');
+}
+function toggleService(id,on){const s=SERVICES.find(x=>x.id===id);if(!s)return;s.active=on;notify(s.name+' '+(on?'enabled':'disabled'))}
+function updateSvcPrice(id,val){const s=SERVICES.find(x=>x.id===id);if(!s)return;const n=parseFloat(val);if(isNaN(n)||n<0)return;s.price=Math.round(n*100)/100;notify(s.name+' price updated to €'+s.price.toFixed(2))}
+function submitService(e){e.preventDefault();e.target.reset();closeModal('addSvcModal');notify('New service added 🧺')}
+
+/* ══ SETTINGS ══ */
+function renderSettings(){renderTierGrid();renderCityTags()}
+
+function renderTierGrid(){
+  const el=document.getElementById('tierGrid');
+  if(!el) return;
+  el.innerHTML=TIERS.map((t,i)=>`
+    <div class="tier ${i===1?'highlight':''}">
+      <div class="tier-nm">${t.name}</div>
+      <div class="rate-row">
+        <input class="rinput" type="number" value="${t.rate}" min="1" max="50" onchange="updateTierRate(${i},this.value)">
+        <span>% commission</span>
+      </div>
+      <div class="tier-info">${t.limit}<br>${t.providers.length} provider${t.providers.length!==1?'s':''} on this plan</div>
+    </div>`).join('');
+}
+function updateTierRate(i,val){if(!TIERS[i])return;const n=parseFloat(val);if(isNaN(n)||n<1||n>50)return;TIERS[i].rate=Math.round(n*10)/10;notify(TIERS[i].name+' commission updated to '+TIERS[i].rate+'%')}
+
+function renderCityTags(){
+  const el=document.getElementById('cityTags');
+  if(!el) return;
+  el.innerHTML=activeCities.map(c=>`
+    <span class="city-tag">${_s(c)}<button data-city="${_s(c)}" onclick="removeCity(this.dataset.city)" title="Remove ${_s(c)}">✕</button></span>`).join('');
+}
+function addCity(){
+  const inp=document.getElementById('newCityInput');
+  const val=inp.value.trim();
+  if(!val) return;
+  if(val.length>60){notify('City name is too long');return;}
+  if(activeCities.map(c=>c.toLowerCase()).includes(val.toLowerCase())) return;
+  activeCities.push(val);
+  renderCityTags();
+  notify(val+' added to active cities ✅');
+  inp.value='';
+}
+function removeCity(name){
+  activeCities=activeCities.filter(c=>c!==name);
+  renderCityTags();
+  notify(name+' removed from active cities');
+}
+
+/* ══ TOAST ══ */
+let nTimer;
+function notify(msg){
+  let t=document.getElementById('adminToast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='adminToast';
+    t.style.cssText='position:fixed;bottom:24px;right:24px;background:var(--navy);color:white;padding:13px 20px;border-radius:11px;box-shadow:0 8px 28px rgba(0,0,0,.2);font-size:.86rem;font-weight:500;z-index:1400;border-left:3px solid var(--gold);max-width:340px;transition:all .35s cubic-bezier(.4,0,.2,1);transform:translateY(60px);opacity:0';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg;
+  clearTimeout(nTimer);
+  t.style.transform='none';t.style.opacity='1';
+  nTimer=setTimeout(()=>{t.style.transform='translateY(60px)';t.style.opacity='0'},4000);
+}
+
+/* ══ RESPONSIVE ══ */
+window.addEventListener('resize',()=>{
+  if(window.innerWidth>860) closeSidebar();
+});
+</script>
+</body>
+</html>

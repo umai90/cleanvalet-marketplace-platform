@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CleanValet — Europe's Premium Dry Cleaning Marketplace</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --navy:       #0B1F3A;
+  --navy-light: #162d52;
+  --navy-dark:  #071528;
+  --gold:       #C9A84C;
+  --gold-light: #D9BC72;
+  --gold-dark:  #A8882E;
+  --white:      #FFFFFF;
+  --off-white:  #F8F6F1;
+  --gray-100:   #F4F4F5;
+  --gray-200:   #E4E4E7;
+  --gray-400:   #A1A1AA;
+  --gray-500:   #71717A;
+  --gray-600:   #52525B;
+  --gray-700:   #3F3F46;
+  --gray-800:   #27272A;
+  --success:    #059669;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --shadow-xs: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-sm: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-md: 0 8px 28px rgba(0,0,0,0.12);
+  --shadow-lg: 0 20px 56px rgba(0,0,0,0.18);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --ease: cubic-bezier(0.4,0,0.2,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--font-body);color:var(--gray-700);background:var(--white);line-height:1.65;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:var(--font-body);border:none;background:none}
+img{max-width:100%;display:block}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:3px;border-radius:4px}
+
+.container{max-width:1200px;margin:0 auto;padding:0 28px}
+
+/* ── TYPOGRAPHY UTILS ── */
+.label{font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.section-title{font-family:var(--font-display);font-size:clamp(1.9rem,3.6vw,2.85rem);font-weight:700;color:var(--navy);line-height:1.18;margin-bottom:14px}
+.section-sub{font-size:1.02rem;color:var(--gray-500);line-height:1.72;max-width:560px}
+.section-head{text-align:center;margin-bottom:64px}
+.section-head .section-sub{margin:0 auto}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:var(--radius-sm);font-weight:600;font-size:.92rem;letter-spacing:.01em;transition:all .28s var(--ease);border:2px solid transparent;cursor:pointer;font-family:var(--font-body)}
+.btn-gold{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.btn-gold:hover{background:var(--gold-dark);border-color:var(--gold-dark);transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,.34)}
+.btn-outline-white{background:transparent;color:var(--white);border-color:rgba(255,255,255,.45)}
+.btn-outline-white:hover{background:rgba(255,255,255,.1);border-color:var(--white)}
+.btn-outline-navy{background:transparent;color:var(--navy);border-color:var(--navy)}
+.btn-outline-navy:hover{background:var(--navy);color:var(--white)}
+
+/* ── SCROLL ANIMATION ── */
+[data-aos]{opacity:0;transform:translateY(22px);transition:opacity .65s var(--ease),transform .65s var(--ease)}
+[data-aos].visible{opacity:1;transform:none}
+[data-aos][data-d="1"]{transition-delay:.1s}
+[data-aos][data-d="2"]{transition-delay:.2s}
+[data-aos][data-d="3"]{transition-delay:.3s}
+[data-aos][data-d="4"]{transition-delay:.4s}
+[data-aos][data-d="5"]{transition-delay:.5s}
+
+/* ════════════════════════════════════════
+   NAVBAR
+════════════════════════════════════════ */
+#nav{position:fixed;inset:0 0 auto;z-index:900;padding:22px 0;transition:padding .3s var(--ease),background .3s var(--ease),box-shadow .3s var(--ease)}
+#nav.scrolled{padding:13px 0;background:rgba(7,21,40,.95);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 4px 28px rgba(0,0,0,.22)}
+
+.nav-wrap{display:flex;align-items:center;justify-content:space-between;gap:24px}
+
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:1.38rem;font-weight:700;color:var(--white);white-space:nowrap;flex-shrink:0}
+.logo svg{width:26px;height:26px;flex-shrink:0}
+.logo-gold{color:var(--gold)}
+
+.nav-links{display:flex;align-items:center;gap:28px;list-style:none}
+.nav-links a{color:rgba(255,255,255,.8);font-size:.875rem;font-weight:500;position:relative;transition:color .25s}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;background:var(--gold);transition:width .28s var(--ease)}
+.nav-links a:hover{color:var(--white)}
+.nav-links a:hover::after{width:100%}
+
+.nav-ctas{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.nav-ctas .btn{padding:10px 20px;font-size:.84rem}
+
+/* Hamburger */
+.burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:40px;height:40px;border-radius:var(--radius-sm);background:rgba(255,255,255,.08);border:none;padding:8px;transition:background .25s}
+.burger:hover{background:rgba(255,255,255,.14)}
+.burger span{display:block;width:22px;height:2px;background:var(--white);border-radius:2px;transition:all .28s var(--ease);transform-origin:center}
+.burger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.burger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.burger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+
+/* Mobile menu */
+.mob-menu{display:none;flex-direction:column;gap:0;position:fixed;top:62px;inset:auto 0 0;background:var(--navy-dark);border-top:1px solid rgba(201,168,76,.15);overflow-y:auto;z-index:899;max-height:calc(100vh - 62px);padding-bottom:24px}
+.mob-menu.open{display:flex}
+.mob-menu a{color:rgba(255,255,255,.85);font-size:1.05rem;font-weight:500;padding:16px 28px;border-bottom:1px solid rgba(255,255,255,.05);transition:color .2s,background .2s}
+.mob-menu a:hover{color:var(--gold);background:rgba(255,255,255,.03)}
+.mob-btns{display:flex;flex-direction:column;gap:10px;padding:20px 28px 0}
+.mob-btns .btn{width:100%;justify-content:center}
+
+/* ════════════════════════════════════════
+   HERO
+════════════════════════════════════════ */
+#hero{min-height:100vh;background:var(--navy);display:flex;align-items:center;padding:120px 0 80px;position:relative;overflow:hidden}
+
+/* Woven linen texture */
+#hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 6px),repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 6px);pointer-events:none}
+
+/* Gold radial glow */
+#hero::after{content:'';position:absolute;right:-80px;top:50%;transform:translateY(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.07) 0%,transparent 68%);pointer-events:none}
+
+.hero-geo{position:absolute;top:8%;right:3%;width:380px;height:380px;opacity:.055;pointer-events:none}
+
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.28);color:var(--gold);padding:8px 18px;border-radius:100px;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:26px}
+
+.hero-title{font-family:var(--font-display);font-size:clamp(2.1rem,5vw,3.9rem);font-weight:700;color:var(--white);line-height:1.12;margin-bottom:20px}
+.hero-title em{color:var(--gold);font-style:italic}
+
+.hero-sub{font-size:1.08rem;color:rgba(255,255,255,.68);line-height:1.74;margin-bottom:40px;max-width:540px}
+
+/* Booking widget */
+.bk-widget{background:rgba(255,255,255,.97);border-radius:var(--radius-lg);padding:30px 28px 24px;box-shadow:0 28px 72px rgba(0,0,0,.32);max-width:660px}
+.bk-title{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:18px}
+.bk-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gray-500)}
+.fg input,.fg select{padding:11px 14px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.93rem;color:var(--navy);background:var(--white);transition:border-color .22s,box-shadow .22s;outline:none;width:100%}
+.fg input:focus,.fg select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+.fg.full{grid-column:1/-1}
+.bk-submit{width:100%;justify-content:center;padding:14px;font-size:.96rem;margin-top:4px}
+
+/* Trust badges */
+.trust{display:flex;flex-wrap:wrap;gap:22px;margin-top:34px}
+.trust-item{display:flex;align-items:center;gap:7px;color:rgba(255,255,255,.7);font-size:.84rem;font-weight:500}
+
+/* ════════════════════════════════════════
+   HOW IT WORKS
+════════════════════════════════════════ */
+#how{padding:104px 0;background:var(--off-white)}
+
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;position:relative}
+.steps::before{content:'';position:absolute;top:42px;left:calc(16.6% + 32px);right:calc(16.6% + 32px);height:1.5px;background:linear-gradient(90deg,transparent,var(--gold) 20%,var(--gold) 80%,transparent);opacity:.25}
+
+.step{background:var(--white);border-radius:var(--radius-lg);padding:40px 30px 36px;text-align:center;box-shadow:var(--shadow-sm);transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.step:hover{transform:translateY(-6px);box-shadow:var(--shadow-md)}
+.step-num{font-family:var(--font-display);font-size:3.2rem;font-weight:700;color:var(--gold);opacity:.22;line-height:1;margin-bottom:12px}
+.step-icon{width:66px;height:66px;background:linear-gradient(135deg,var(--navy),var(--navy-light));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.9rem;margin:0 auto 20px}
+.step h3{font-family:var(--font-display);font-size:1.22rem;font-weight:700;color:var(--navy);margin-bottom:10px}
+.step p{font-size:.92rem;color:var(--gray-500);line-height:1.62}
+
+/* ════════════════════════════════════════
+   SERVICES
+════════════════════════════════════════ */
+#services{padding:104px 0;background:var(--white)}
+
+.svc-header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;margin-bottom:38px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap}
+.tab{padding:9px 22px;border-radius:100px;font-size:.83rem;font-weight:600;background:var(--gray-100);color:var(--gray-500);border:2px solid transparent;transition:all .24s var(--ease);cursor:pointer;font-family:var(--font-body)}
+.tab:hover{background:var(--navy);color:var(--white);border-color:var(--navy)}
+.tab.on{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.svc-card{border:1.5px solid var(--gray-200);border-radius:var(--radius-md);padding:30px 24px 26px;transition:border-color .28s,transform .28s,box-shadow .28s;cursor:default}
+.svc-card:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 12px 36px rgba(201,168,76,.14)}
+.svc-card.gone{display:none}
+.svc-icon{font-size:2.4rem;margin-bottom:14px}
+.svc-card h3{font-family:var(--font-display);font-size:1.12rem;font-weight:700;color:var(--navy);margin-bottom:8px}
+.svc-card p{font-size:.86rem;color:var(--gray-500);line-height:1.56;margin-bottom:14px}
+.svc-price{font-size:.76rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.svc-price strong{font-size:1.08rem;color:var(--gold-dark);font-family:var(--font-display);font-weight:700}
+.svc-card .btn{width:100%;justify-content:center;padding:10px;font-size:.84rem;margin-top:18px}
+
+/* ════════════════════════════════════════
+   STATS
+════════════════════════════════════════ */
+#stats{padding:84px 0;background:var(--navy);position:relative;overflow:hidden}
+#stats::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,168,76,.018) 40px,rgba(201,168,76,.018) 80px)}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:48px;position:relative}
+.stat{text-align:center}
+.stat-n{font-family:var(--font-display);font-size:clamp(2rem,4vw,3.1rem);font-weight:700;color:var(--gold);display:block;line-height:1;margin-bottom:10px;min-height:1.2em}
+.stat-l{color:rgba(255,255,255,.6);font-size:.9rem;font-weight:500}
+
+/* ════════════════════════════════════════
+   PROVIDERS
+════════════════════════════════════════ */
+#providers{padding:104px 0;background:var(--off-white)}
+.prov-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+
+.prov-card{background:var(--white);border-radius:var(--radius-lg);padding:26px;box-shadow:var(--shadow-sm);transition:transform .3s var(--ease),box-shadow .3s var(--ease);display:flex;flex-direction:column;gap:16px}
+.prov-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+
+.prov-head{display:flex;align-items:center;gap:14px}
+.prov-av{width:58px;height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.15rem;font-weight:700;color:var(--white);flex-shrink:0}
+.prov-info h3{font-family:var(--font-display);font-size:1.08rem;font-weight:700;color:var(--navy);margin-bottom:4px}
+.stars-row{display:flex;align-items:center;gap:5px;font-size:.84rem}
+.stars{color:var(--gold);letter-spacing:-2px}
+.stars-score{font-weight:700;color:var(--navy)}
+.stars-ct{color:var(--gray-400)}
+
+.tags{display:flex;flex-wrap:wrap;gap:7px}
+.tag{padding:4px 11px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.02em}
+.tag-base{background:var(--navy);color:var(--white)}
+.tag-eco{background:#14532d;color:#bbf7d0}
+.tag-express{background:var(--gold);color:var(--navy)}
+.tag-prem{background:var(--navy-dark);color:rgba(255,255,255,.8)}
+
+.prov-meta{display:flex;align-items:center;justify-content:space-between;font-size:.83rem}
+.turnaround{color:var(--success);font-weight:600}
+.comm{background:var(--off-white);border:1px solid var(--gray-200);color:var(--gray-500);padding:3px 10px;border-radius:100px;font-size:.7rem;font-weight:700}
+
+.prov-card .btn{justify-content:center;padding:11px;font-size:.86rem}
+
+/* ════════════════════════════════════════
+   FOR PROVIDERS
+════════════════════════════════════════ */
+#for-providers{padding:104px 0;background:var(--white)}
+
+.fp-split{display:grid;grid-template-columns:1fr 1fr;gap:84px;align-items:center}
+
+.benefits{list-style:none;margin:26px 0 34px;display:flex;flex-direction:column;gap:13px}
+.benefits li{display:flex;align-items:flex-start;gap:12px;font-size:.94rem;color:var(--gray-600);line-height:1.55}
+.chk{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--navy);font-size:.72rem;font-weight:800;margin-top:1px}
+
+.partner-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:32px}
+.p-badge{padding:7px 14px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:.75rem;font-weight:700;color:var(--gray-500);letter-spacing:.06em;text-transform:uppercase}
+
+/* CSS illustration */
+.fp-illus{position:relative;height:430px}
+.illus-bg{position:absolute;inset:0;background:linear-gradient(135deg,var(--off-white),#e8edf5);border-radius:var(--radius-lg);overflow:hidden}
+.illus-bg::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(201,168,76,.08)}
+.illus-bg::after{content:'';position:absolute;bottom:-30px;left:-30px;width:160px;height:160px;border-radius:50%;background:rgba(11,31,58,.05)}
+
+.ic{position:absolute;background:var(--white);border-radius:14px;padding:18px;box-shadow:var(--shadow-md)}
+.ic-1{top:28px;left:28px;width:190px}
+.ic-2{top:50%;right:28px;transform:translateY(-50%);width:164px}
+.ic-3{bottom:28px;left:60px;width:210px}
+
+.ic-lbl{font-size:.68rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:5px}
+.ic-val{font-family:var(--font-display);font-size:1.45rem;font-weight:700;color:var(--navy)}
+.ic-val.gold{color:var(--gold-dark)}
+.ic-bar{height:6px;background:var(--gray-200);border-radius:3px;margin-top:9px;overflow:hidden}
+.ic-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:3px}
+.ic-mini-bars{display:flex;align-items:flex-end;gap:5px;margin-top:9px;height:42px}
+.ic-mini-bars div{width:10px;border-radius:3px 3px 0 0;background:var(--gold)}
+
+/* ════════════════════════════════════════
+   PRICING
+════════════════════════════════════════ */
+#pricing{padding:104px 0;background:var(--off-white)}
+
+.ptable-wrap{overflow-x:auto;border-radius:var(--radius-lg);box-shadow:var(--shadow-md)}
+.ptable{width:100%;border-collapse:collapse;background:var(--white);min-width:560px}
+.ptable thead th{padding:22px 30px;text-align:left;font-family:var(--font-display);font-size:.95rem;font-weight:700;color:var(--white);background:var(--navy)}
+.ptable thead th:first-child{border-radius:var(--radius-md) 0 0 0}
+.ptable thead th:last-child{border-radius:0 var(--radius-md) 0 0}
+.ptable tbody td{padding:20px 30px;border-bottom:1px solid var(--gray-100);font-size:.92rem;color:var(--gray-600);vertical-align:middle}
+.ptable tbody tr:last-child td{border-bottom:none}
+.ptable tbody tr.feat{background:rgba(201,168,76,.04)}
+.ptable tbody tr.feat td:first-child{position:relative}
+.ptable tbody tr.feat td:first-child::after{content:'Most Popular';display:block;font-size:.66rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.plan-nm{font-family:var(--font-display);font-weight:700;color:var(--navy);font-size:1.02rem}
+.comm-rate{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--gold-dark)}
+.p-note{text-align:center;margin-top:22px;font-size:.86rem;color:var(--gray-500);padding:14px 22px;background:rgba(5,150,105,.05);border:1px solid rgba(5,150,105,.15);border-radius:var(--radius-sm)}
+
+/* ════════════════════════════════════════
+   TESTIMONIALS
+════════════════════════════════════════ */
+#testimonials{padding:104px 0;background:var(--white)}
+
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.tcard{background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius-lg);padding:30px;position:relative;transition:border-color .28s,box-shadow .28s}
+.tcard:hover{border-color:var(--gold);box-shadow:0 8px 32px rgba(201,168,76,.1)}
+.ttype{position:absolute;top:18px;right:18px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:100px}
+.ttype-c{background:rgba(11,31,58,.07);color:var(--navy)}
+.ttype-p{background:rgba(201,168,76,.14);color:var(--gold-dark)}
+.qmark{font-family:var(--font-display);font-size:4.5rem;color:var(--gold);opacity:.18;line-height:.9;margin-bottom:-12px}
+.ttext{font-size:.96rem;color:var(--gray-600);line-height:1.72;font-style:italic;margin-bottom:22px}
+.tauthor{display:flex;align-items:center;gap:12px}
+.tav{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:.88rem;color:var(--white);flex-shrink:0}
+.tname{font-weight:700;color:var(--navy);font-size:.88rem}
+.tloc{font-size:.78rem;color:var(--gray-400)}
+
+/* ════════════════════════════════════════
+   DUAL CTA
+════════════════════════════════════════ */
+#dual-cta{display:grid;grid-template-columns:1fr 1fr}
+
+.cta-pnl{padding:90px 64px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:14px}
+.cta-pnl.navy{background:var(--navy)}
+.cta-pnl.gold{background:var(--gold)}
+.pnl-lbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em}
+.cta-pnl.navy .pnl-lbl{color:rgba(255,255,255,.45)}
+.cta-pnl.gold .pnl-lbl{color:rgba(11,31,58,.45)}
+.cta-pnl h2{font-family:var(--font-display);font-size:clamp(1.6rem,2.8vw,2.2rem);font-weight:700;line-height:1.18}
+.cta-pnl.navy h2{color:var(--white)}
+.cta-pnl.gold h2{color:var(--navy)}
+.cta-pnl p{font-size:.94rem;line-height:1.66}
+.cta-pnl.navy p{color:rgba(255,255,255,.6)}
+.cta-pnl.gold p{color:rgba(11,31,58,.6)}
+.cta-pnl.navy .btn{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.cta-pnl.navy .btn:hover{background:var(--gold-dark);border-color:var(--gold-dark)}
+.cta-pnl.gold .btn{background:var(--navy);color:var(--white);border-color:var(--navy)}
+.cta-pnl.gold .btn:hover{background:var(--navy-dark);border-color:var(--navy-dark)}
+
+/* ════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════ */
+footer{background:var(--navy-dark);padding:80px 0 36px}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:48px;margin-bottom:52px}
+.foot-brand .logo{margin-bottom:14px;font-size:1.2rem}
+.foot-tagline{font-size:.84rem;color:rgba(255,255,255,.38);line-height:1.66;margin-bottom:18px}
+.eco-line{font-size:.78rem;color:rgba(255,255,255,.34);display:flex;align-items:flex-start;gap:6px;line-height:1.52}
+.foot-col h4{font-family:var(--font-display);font-size:.88rem;font-weight:700;color:var(--white);margin-bottom:16px}
+.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.foot-col ul a{font-size:.84rem;color:rgba(255,255,255,.4);transition:color .22s}
+.foot-col ul a:hover{color:var(--gold)}
+.foot-bot{border-top:1px solid rgba(255,255,255,.06);padding-top:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.foot-copy{font-size:.78rem;color:rgba(255,255,255,.28)}
+.socials{display:flex;gap:10px}
+.soc{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.38);transition:all .25s}
+.soc:hover{background:var(--gold);color:var(--navy)}
+.soc svg{width:15px;height:15px}
+
+/* ════════════════════════════════════════
+   MODAL
+════════════════════════════════════════ */
+.overlay{position:fixed;inset:0;background:rgba(7,21,40,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:1200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--white);border-radius:var(--radius-lg);padding:40px 36px;width:100%;max-width:530px;max-height:90vh;overflow-y:auto;transform:scale(.96) translateY(16px);transition:transform .3s var(--ease)}
+.overlay.open .modal{transform:none}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px}
+.modal-head h2{font-family:var(--font-display);font-size:1.48rem;font-weight:700;color:var(--navy)}
+.modal-head p{font-size:.84rem;color:var(--gray-500);margin-top:4px}
+.modal-x{width:34px;height:34px;border-radius:50%;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-500);font-size:1rem;flex-shrink:0;transition:all .22s;cursor:pointer}
+.modal-x:hover{background:var(--gray-200);color:var(--gray-800)}
+.mform{display:flex;flex-direction:column;gap:14px}
+.mform .fg input,.mform .fg select,.mform .fg textarea{padding:11px 15px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.92rem;color:var(--navy);background:var(--white);outline:none;transition:border-color .22s,box-shadow .22s;width:100%}
+.mform .fg input:focus,.mform .fg select:focus,.mform .fg textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.11)}
+.mform textarea{resize:vertical;min-height:82px}
+.mform .fg.err input,.mform .fg.err select{border-color:#ef4444}
+.mform .btn{width:100%;justify-content:center;padding:14px;margin-top:6px}
+
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--navy);color:var(--white);padding:15px 22px;border-radius:var(--radius-md);box-shadow:var(--shadow-lg);font-size:.92rem;font-weight:500;z-index:1400;display:flex;align-items:center;gap:12px;max-width:370px;border-left:3.5px solid var(--gold);transform:translateY(80px);opacity:0;transition:transform .38s var(--ease),opacity .38s var(--ease);pointer-events:none}
+.toast.show{transform:none;opacity:1;pointer-events:all}
+.toast-ico{font-size:1.15rem;flex-shrink:0}
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+@media(max-width:1080px){
+  .foot-grid{grid-template-columns:1fr 1fr 1fr;gap:32px}
+  .foot-brand{grid-column:1/-1}
+  .fp-split{grid-template-columns:1fr;gap:52px}
+  .fp-illus{height:310px}
+}
+@media(max-width:768px){
+  .nav-links,.nav-ctas{display:none}
+  .burger{display:flex}
+  .steps{grid-template-columns:1fr}
+  .steps::before{display:none}
+  .svc-grid{grid-template-columns:1fr 1fr}
+  .prov-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr;gap:32px}
+  .testi-grid{grid-template-columns:1fr}
+  #dual-cta{grid-template-columns:1fr}
+  .cta-pnl{padding:64px 36px}
+  .foot-grid{grid-template-columns:1fr 1fr;gap:28px}
+  .bk-grid{grid-template-columns:1fr}
+  .section-head{margin-bottom:44px}
+}
+@media(max-width:480px){
+  .container{padding:0 18px}
+  .svc-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr;gap:24px}
+  .foot-grid{grid-template-columns:1fr}
+  .cta-pnl{padding:52px 24px}
+  .toast{left:16px;right:16px;bottom:16px}
+  .hero-title{font-size:2rem}
+}
+
+/* ════════════════════════════════════════
+   ORDER TRACKING SECTION
+════════════════════════════════════════ */
+#tracking{padding:104px 0;background:var(--navy);position:relative;overflow:hidden}
+#tracking::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.01) 3px,rgba(255,255,255,.01) 6px),repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(255,255,255,.01) 3px,rgba(255,255,255,.01) 6px);pointer-events:none}
+#tracking::after{content:'';position:absolute;left:-120px;bottom:-120px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.07) 0%,transparent 68%);pointer-events:none}
+
+#tracking .label{color:rgba(201,168,76,.7)}
+#tracking .section-title{color:var(--white)}
+#tracking .section-sub{color:rgba(255,255,255,.55)}
+
+/* Search bar */
+.trk-search{display:flex;gap:12px;max-width:560px;margin:40px auto 0;position:relative;z-index:1}
+.trk-search input{flex:1;padding:15px 20px;border-radius:var(--radius-sm);border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:var(--white);font-family:var(--font-body);font-size:.97rem;outline:none;transition:border-color .25s,background .25s}
+.trk-search input::placeholder{color:rgba(255,255,255,.35)}
+.trk-search input:focus{border-color:var(--gold);background:rgba(255,255,255,.11)}
+.trk-search .btn{flex-shrink:0;padding:15px 28px}
+
+/* Try codes hint */
+.trk-hint{text-align:center;margin-top:14px;font-size:.78rem;color:rgba(255,255,255,.35);position:relative;z-index:1}
+.trk-hint span{color:var(--gold);cursor:pointer;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+
+/* Result panel */
+.trk-result{max-width:760px;margin:40px auto 0;opacity:0;transform:translateY(18px);transition:opacity .45s var(--ease),transform .45s var(--ease);pointer-events:none;position:relative;z-index:1}
+.trk-result.show{opacity:1;transform:none;pointer-events:all}
+
+/* Order summary card */
+.trk-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-lg);padding:28px 30px;backdrop-filter:blur(12px);margin-bottom:24px}
+.trk-card-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.trk-order-num{font-family:var(--font-display);font-size:1.12rem;font-weight:700;color:var(--gold)}
+.trk-status-pill{padding:6px 16px;border-radius:100px;font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.pill-cleaning{background:rgba(201,168,76,.2);color:var(--gold-light)}
+.pill-delivery{background:rgba(59,130,246,.2);color:#93c5fd}
+.pill-delivered{background:rgba(5,150,105,.2);color:#6ee7b7}
+.pill-pickup{background:rgba(168,85,247,.2);color:#d8b4fe}
+.pill-confirmed{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+
+.trk-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.trk-meta-item label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);display:block;margin-bottom:4px}
+.trk-meta-item span{font-size:.9rem;color:var(--white);font-weight:600}
+
+/* Timeline */
+.trk-timeline{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-lg);padding:32px 30px;backdrop-filter:blur(12px);margin-bottom:24px}
+.trk-tl-title{font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--white);margin-bottom:28px}
+
+/* Horizontal progress bar */
+.trk-progress-bar{display:flex;align-items:flex-start;position:relative;margin-bottom:32px}
+.trk-progress-bar::before{content:'';position:absolute;top:18px;left:20px;right:20px;height:3px;background:rgba(255,255,255,.12);border-radius:2px;z-index:0}
+.trk-progress-fill{position:absolute;top:18px;left:20px;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:2px;z-index:1;transition:width 1s cubic-bezier(.4,0,.2,1) .3s}
+
+.trk-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;z-index:2}
+.trk-dot{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;transition:all .4s var(--ease);border:2.5px solid transparent}
+.trk-dot.done{background:var(--success);border-color:var(--success)}
+.trk-dot.active{background:var(--gold);border-color:var(--gold);box-shadow:0 0 0 5px rgba(201,168,76,.25);animation:pulse-gold 2s infinite}
+.trk-dot.pending{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
+
+@keyframes pulse-gold{
+  0%,100%{box-shadow:0 0 0 5px rgba(201,168,76,.25)}
+  50%{box-shadow:0 0 0 10px rgba(201,168,76,.08)}
+}
+
+.trk-step-label{text-align:center}
+.trk-step-label .sname{font-size:.74rem;font-weight:700;color:rgba(255,255,255,.55);display:block;line-height:1.3}
+.trk-step-label .sname.done-txt{color:var(--success)}
+.trk-step-label .sname.active-txt{color:var(--gold)}
+.trk-step-label .stime{font-size:.66rem;color:rgba(255,255,255,.3);display:block;margin-top:2px}
+
+/* Live status detail */
+.trk-live{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:var(--radius-md)}
+.trk-live-ico{font-size:1.6rem;flex-shrink:0;margin-top:2px}
+.trk-live-txt h4{font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:4px}
+.trk-live-txt p{font-size:.86rem;color:rgba(255,255,255,.6);line-height:1.55}
+
+/* ETA bar */
+.trk-eta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:16px 22px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-md)}
+.trk-eta-left span{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);font-weight:700;display:block;margin-bottom:3px}
+.trk-eta-left strong{font-size:1rem;color:var(--white);font-weight:700}
+.trk-eta-right{display:flex;align-items:center;gap:8px;font-size:.84rem;color:rgba(255,255,255,.5)}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--success);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* Not found */
+.trk-notfound{text-align:center;padding:40px 24px}
+.trk-notfound .nf-ico{font-size:2.8rem;margin-bottom:12px}
+.trk-notfound h3{font-family:var(--font-display);font-size:1.1rem;color:var(--white);margin-bottom:8px}
+.trk-notfound p{font-size:.88rem;color:rgba(255,255,255,.45);line-height:1.55}
+
+@media(max-width:768px){
+  .trk-meta{grid-template-columns:1fr 1fr}
+  .trk-search{flex-direction:column}
+  .trk-search .btn{width:100%;justify-content:center}
+  .trk-step-label .sname{font-size:.66rem}
+  .trk-dot{width:32px;height:32px;font-size:.95rem}
+}
+@media(max-width:520px){
+  .trk-meta{grid-template-columns:1fr 1fr}
+  .trk-card-top{flex-direction:column;align-items:flex-start}
+  .trk-progress-bar{gap:0}
+  .trk-step-label .stime{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ NAV ══════════ -->
+<nav id="nav" role="navigation" aria-label="Main navigation">
+  <div class="container">
+    <div class="nav-wrap">
+      <a href="#" class="logo" aria-label="CleanValet home">
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M14 3.5C14 3.5 10.5 5.2 10.5 8C10.5 10.2 12.1 11.5 14 11.5C15.9 11.5 17.5 10.2 17.5 8C17.5 5.2 14 3.5 14 3.5Z" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14 11.5L3.5 20.5C2.5 21.5 2.5 22.5 3.5 23.5H24.5C25.5 22.5 25.5 21.5 24.5 20.5L14 11.5Z" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="14" cy="7.5" r="1.2" fill="#C9A84C"/>
+        </svg>
+        Clean<span class="logo-gold">Valet</span>
+      </a>
+
+      <ul class="nav-links" role="list">
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#for-providers">For Providers</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#testimonials">Reviews</a></li>
+        <li><a href="#tracking">Track Order</a></li>
+        <li><a href="admin.html" aria-label="Login">Login</a></li>
+      </ul>
+
+      <div class="nav-ctas">
+        <button class="btn btn-gold" onclick="smoothScrollTo('#hero')">Book Now</button>
+        <button class="btn btn-outline-white" onclick="openModal()">Join as Provider</button>
+      </div>
+
+      <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mob-menu" id="mobMenu">
+    <a href="#how" onclick="closeMob()">How It Works</a>
+    <a href="#services" onclick="closeMob()">Services</a>
+    <a href="#for-providers" onclick="closeMob()">For Providers</a>
+    <a href="#pricing" onclick="closeMob()">Pricing</a>
+    <a href="#testimonials" onclick="closeMob()">Reviews</a>
+    <a href="#tracking" onclick="closeMob()">Track Order</a>
+    <div class="mob-btns">
+      <button class="btn btn-gold" onclick="closeMob();smoothScrollTo('#hero')">Book Now</button>
+      <button class="btn btn-outline-white" onclick="closeMob();openModal()">Join as Provider</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+<!-- ══════════ HERO ══════════ -->
+<section id="hero" aria-label="Book premium dry cleaning">
+  <svg class="hero-geo" viewBox="0 0 380 380" fill="none" aria-hidden="true">
+    <circle cx="190" cy="190" r="155" stroke="white" stroke-width=".8" stroke-dasharray="4 9"/>
+    <circle cx="190" cy="190" r="115" stroke="white" stroke-width=".5" stroke-dasharray="2 7"/>
+    <circle cx="190" cy="190" r="75" stroke="white" stroke-width=".5"/>
+    <line x1="190" y1="30" x2="190" y2="350" stroke="white" stroke-width=".4" stroke-dasharray="2 9"/>
+    <line x1="30" y1="190" x2="350" y2="190" stroke="white" stroke-width=".4" stroke-dasharray="2 9"/>
+    <line x1="80" y1="80" x2="300" y2="300" stroke="white" stroke-width=".3" stroke-dasharray="2 9"/>
+    <line x1="300" y1="80" x2="80" y2="300" stroke="white" stroke-width=".3" stroke-dasharray="2 9"/>
+  </svg>
+
+  <div class="container">
+    <div style="max-width:680px">
+      <div class="hero-badge" data-aos>
+        <span>✦</span> Europe's Premium Dry Cleaning Marketplace
+      </div>
+      <h1 class="hero-title" data-aos data-d="1">
+        Your Clothes. Cleaned.<br>Delivered. — <em>The European Way.</em>
+      </h1>
+      <p class="hero-sub" data-aos data-d="2">
+        Connect with top-rated dry cleaners in your city. Free pickup &amp; delivery — professional care, guaranteed.
+      </p>
+
+      <div class="bk-widget" data-aos data-d="3">
+        <p class="bk-title">Find a Cleaner Near You</p>
+        <form class="bk-grid" id="bookForm" novalidate>
+          <div class="fg">
+            <label for="pc">📍 Postcode / City</label>
+            <input type="text" id="pc" placeholder="e.g. Paris, W1A 1AA" autocomplete="postal-code">
+          </div>
+          <div class="fg">
+            <label for="svc">🧺 Service</label>
+            <select id="svc">
+              <option value="">Select a service…</option>
+              <option>Dry Cleaning</option>
+              <option>Wash &amp; Fold</option>
+              <option>Ironing</option>
+              <option>Duvet Clean</option>
+              <option>Shirt Laundry</option>
+              <option>Wedding Dress</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label for="pd">📅 Pickup Date</label>
+            <input type="date" id="pd">
+          </div>
+          <div class="fg">
+            <label for="qty">🧥 Quantity</label>
+            <select id="qty">
+              <option value="">Items…</option>
+              <option>1–5 items</option>
+              <option>6–10 items</option>
+              <option>11–20 items</option>
+              <option>20+ items</option>
+            </select>
+          </div>
+          <div class="fg full">
+            <button type="submit" class="btn btn-gold bk-submit">Find a Cleaner →</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="trust" data-aos data-d="4">
+        <div class="trust-item"><span>⭐</span> 4.9/5 Rating</div>
+        <div class="trust-item"><span>🌿</span> Eco-Friendly Partners</div>
+        <div class="trust-item"><span>🔒</span> Insured &amp; Vetted</div>
+        <div class="trust-item"><span>⚡</span> 24hr Turnaround</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ HOW IT WORKS ══════════ -->
+<section id="how" aria-label="How CleanValet works">
+  <div class="container">
+    <div class="section-head">
+      <p class="label" data-aos>The Process</p>
+      <h2 class="section-title" data-aos data-d="1">Simple. Fast. Premium.</h2>
+      <p class="section-sub" data-aos data-d="2">Three steps and your garments are in expert hands — no queues, no hassle, no compromise.</p>
+    </div>
+    <div class="steps">
+      <div class="step" data-aos data-d="1">
+        <div class="step-num">01</div>
+        <div class="step-icon" aria-hidden="true">📱</div>
+        <h3>Book Online</h3>
+        <p>Schedule a pickup in under 60 seconds. Choose your service, select a date, and a vetted provider is confirmed instantly.</p>
+      </div>
+      <div class="step" data-aos data-d="2">
+        <div class="step-num">02</div>
+        <div class="step-icon" aria-hidden="true">🚗</div>
+        <h3>We Collect</h3>
+        <p>A vetted, fully insured provider collects your garments from your door at your chosen time. Contactless &amp; convenient.</p>
+      </div>
+      <div class="step" data-aos data-d="3">
+        <div class="step-num">03</div>
+        <div class="step-icon" aria-hidden="true">✨</div>
+        <h3>Delivered Fresh</h3>
+        <p>Perfectly cleaned, pressed, and packaged garments returned to your door within 24 hours. Guaranteed every time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ SERVICES ══════════ -->
+<section id="services" aria-label="Cleaning services">
+  <div class="container">
+    <div class="svc-header">
+      <div>
+        <p class="label" data-aos>What We Offer</p>
+        <h2 class="section-title" data-aos data-d="1">Services &amp; Pricing</h2>
+      </div>
+      <div class="tabs" role="tablist" data-aos data-d="2">
+        <button class="tab on" data-tab="all" role="tab" aria-selected="true">All</button>
+        <button class="tab" data-tab="garments" role="tab" aria-selected="false">Garments</button>
+        <button class="tab" data-tab="household" role="tab" aria-selected="false">Household</button>
+        <button class="tab" data-tab="express" role="tab" aria-selected="false">Express</button>
+      </div>
+    </div>
+
+    <div class="svc-grid" id="svcGrid">
+      <article class="svc-card" data-cat="garments express" data-aos data-d="1">
+        <div class="svc-icon" aria-hidden="true">👔</div>
+        <h3>Dry Cleaning</h3>
+        <p>Professional solvent cleaning for delicate fabrics, suits, and tailored garments. Individually inspected.</p>
+        <div class="svc-price">From <strong>€4.99</strong> / item</div>
+        <button class="btn btn-outline-navy" onclick="toast('Redirecting to booking…','📋')">Book Now</button>
+      </article>
+
+      <article class="svc-card" data-cat="garments" data-aos data-d="2">
+        <div class="svc-icon" aria-hidden="true">🧺</div>
+        <h3>Wash &amp; Fold</h3>
+        <p>Full laundry service — washed, dried, and folded to perfection. Per bag pricing, simple &amp; transparent.</p>
+        <div class="svc-price">From <strong>€15</strong> / bag</div>
+        <button class="btn btn-outline-navy" onclick="toast('Redirecting to booking…','📋')">Book Now</button>
+      </article>
+
+      <article class="svc-card" data-cat="garments express" data-aos data-d="3">
+        <div class="svc-icon" aria-hidden="true">👕</div>
+        <h3>Shirt Laundry</h3>
+        <p>Laundered and crisp-pressed shirts returned on hangers. Perfect collars and cuffs, every time.</p>
+        <div class="svc-price">From <strong>€2.50</strong> / shirt</div>
+        <button class="btn btn-outline-navy" onclick="toast('Redirecting to booking…','📋')">Book Now</button>
+      </article>
+
+      <article class="svc-card" data-cat="garments express" data-aos data-d="1">
+        <div class="svc-icon" aria-hidden="true">🧲</div>
+        <h3>Ironing</h3>
+        <p>Expert pressing and steaming for all fabric types. Wrinkle-free results on every single garment.</p>
+        <div class="svc-price">From <strong>€2.00</strong> / item</div>
+        <button class="btn btn-outline-navy" onclick="toast('Redirecting to booking…','📋')">Book Now</button>
+      </article>
+
+      <article class="svc-card" data-cat="household" data-aos data-d="2">
+        <div class="svc-icon" aria-hidden="true">🛏️</div>
+        <h3>Duvet &amp; Bedding</h3>
+        <p>Specialist cleaning for duvets, pillows, and all bedding types. Fresh, fluffy, hygienic results.</p>
+        <div class="svc-price">From <strong>€19.99</strong></div>
+        <button class="btn btn-outline-navy" onclick="toast('Redirecting to booking…','📋')">Book Now</button>
+      </article>
+
+      <article class="svc-card" data-cat="garments" data-aos data-d="3">
+        <div class="svc-icon" aria-hidden="true">💍</div>
+        <h3>Wedding Dress</h3>
+        <p>Specialist bridal gown cleaning and preservation. Trusted with Europe's most precious garments.</p>
+        <div class="svc-price">From <strong>€89.99</strong></div>
+        <button class="btn btn-outline-navy" onclick="toast('Redirecting to booking…','📋')">Book Now</button>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ STATS ══════════ -->
+<section id="stats" aria-label="Platform statistics">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat" data-aos>
+        <span class="stat-n" data-target="12400" data-sfx="+" data-fmt="k">0</span>
+        <span class="stat-l">Orders Completed</span>
+      </div>
+      <div class="stat" data-aos data-d="1">
+        <span class="stat-n" data-target="380" data-sfx="+">0</span>
+        <span class="stat-l">Partner Cleaners</span>
+      </div>
+      <div class="stat" data-aos data-d="2">
+        <span class="stat-n" data-target="28">0</span>
+        <span class="stat-l">Cities Across Europe</span>
+      </div>
+      <div class="stat" data-aos data-d="3">
+        <span class="stat-n" data-target="49" data-sfx="★" data-dec="1">0</span>
+        <span class="stat-l">Average Rating</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ PROVIDERS ══════════ -->
+<section id="providers" aria-label="Top-rated providers">
+  <div class="container">
+    <div class="section-head">
+      <p class="label" data-aos>Vetted Professionals</p>
+      <h2 class="section-title" data-aos data-d="1">Top Rated Cleaners Near You</h2>
+      <p class="section-sub" data-aos data-d="2">Every provider is background-checked, insured, and reviewed by real customers.</p>
+    </div>
+    <div class="prov-grid">
+
+      <article class="prov-card" data-aos data-d="1">
+        <div class="prov-head">
+          <div class="prov-av" style="background:linear-gradient(135deg,#0B1F3A,#1a3660)" aria-label="Vienna Premium Cleaners">VP</div>
+          <div class="prov-info">
+            <h3>Vienna Premium Cleaners</h3>
+            <div class="stars-row" aria-label="4.9 stars from 847 reviews">
+              <span class="stars" aria-hidden="true">★★★★★</span>
+              <span class="stars-score">4.9</span>
+              <span class="stars-ct">(847 reviews)</span>
+            </div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-base">Dry Cleaning</span>
+          <span class="tag tag-eco">Eco-Friendly</span>
+          <span class="tag tag-express">Express</span>
+          <span class="tag tag-prem">Cashmere Specialist</span>
+        </div>
+        <div class="prov-meta">
+          <span class="turnaround">⚡ 24hr Turnaround</span>
+          <span class="comm">Platform fee: 15%</span>
+        </div>
+        <button class="btn btn-gold" onclick="toast('Opening Vienna Premium Cleaners…','📋')">Book with this Provider</button>
+      </article>
+
+      <article class="prov-card" data-aos data-d="2">
+        <div class="prov-head">
+          <div class="prov-av" style="background:linear-gradient(135deg,#1a1a2e,#16213e)" aria-label="Berlin Wash Co.">BW</div>
+          <div class="prov-info">
+            <h3>Berlin Wash Co.</h3>
+            <div class="stars-row" aria-label="4.8 stars from 1203 reviews">
+              <span class="stars" aria-hidden="true">★★★★★</span>
+              <span class="stars-score">4.8</span>
+              <span class="stars-ct">(1,203 reviews)</span>
+            </div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-base">Wash &amp; Fold</span>
+          <span class="tag tag-eco">Eco-Friendly</span>
+          <span class="tag tag-base">Shirts</span>
+        </div>
+        <div class="prov-meta">
+          <span class="turnaround">⚡ 48hr Turnaround</span>
+          <span class="comm">Platform fee: 15%</span>
+        </div>
+        <button class="btn btn-gold" onclick="toast('Opening Berlin Wash Co.…','📋')">Book with this Provider</button>
+      </article>
+
+      <article class="prov-card" data-aos data-d="3">
+        <div class="prov-head">
+          <div class="prov-av" style="background:linear-gradient(135deg,#7c1520,#c0392b)" aria-label="Paris Couture Care">PC</div>
+          <div class="prov-info">
+            <h3>Paris Couture Care</h3>
+            <div class="stars-row" aria-label="5.0 stars from 312 reviews">
+              <span class="stars" aria-hidden="true">★★★★★</span>
+              <span class="stars-score">5.0</span>
+              <span class="stars-ct">(312 reviews)</span>
+            </div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-prem">Luxury Garments</span>
+          <span class="tag tag-express">Same-Day</span>
+          <span class="tag tag-base">Bridal</span>
+        </div>
+        <div class="prov-meta">
+          <span class="turnaround">✦ Same-day available</span>
+          <span class="comm">Platform fee: 12%</span>
+        </div>
+        <button class="btn btn-gold" onclick="toast('Opening Paris Couture Care…','📋')">Book with this Provider</button>
+      </article>
+
+      <article class="prov-card" data-aos data-d="4">
+        <div class="prov-head">
+          <div class="prov-av" style="background:linear-gradient(135deg,#064e3b,#059669)" aria-label="Amsterdam EcoClean">AE</div>
+          <div class="prov-info">
+            <h3>Amsterdam EcoClean</h3>
+            <div class="stars-row" aria-label="4.9 stars from 621 reviews">
+              <span class="stars" aria-hidden="true">★★★★★</span>
+              <span class="stars-score">4.9</span>
+              <span class="stars-ct">(621 reviews)</span>
+            </div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-eco">100% Eco</span>
+          <span class="tag tag-base">Household</span>
+          <span class="tag tag-base">Bedding</span>
+        </div>
+        <div class="prov-meta">
+          <span class="turnaround">🌿 72hr Turnaround</span>
+          <span class="comm">Platform fee: 15%</span>
+        </div>
+        <button class="btn btn-gold" onclick="toast('Opening Amsterdam EcoClean…','📋')">Book with this Provider</button>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FOR PROVIDERS ══════════ -->
+<section id="for-providers" aria-label="Grow your cleaning business">
+  <div class="container">
+    <div class="fp-split">
+      <div>
+        <p class="label" data-aos>Partner With Us</p>
+        <h2 class="section-title" data-aos data-d="1">Grow Your Dry Cleaning Business With Zero Risk</h2>
+        <p class="section-sub" data-aos data-d="2">Join Europe's fastest-growing cleaning marketplace and unlock a steady stream of new customers — no upfront costs, no lock-in.</p>
+
+        <ul class="benefits" data-aos data-d="3">
+          <li><div class="chk" aria-hidden="true">✓</div><span>Get new customers without any marketing spend — we handle all demand generation for you</span></li>
+          <li><div class="chk" aria-hidden="true">✓</div><span><strong>Keep 85% of every order</strong> — we take just a 15% platform commission</span></li>
+          <li><div class="chk" aria-hidden="true">✓</div><span>Free business dashboard &amp; order management tools, included at no extra cost</span></li>
+          <li><div class="chk" aria-hidden="true">✓</div><span>Flexible: accept or decline any order — no minimum order commitments</span></li>
+          <li><div class="chk" aria-hidden="true">✓</div><span>Weekly payouts directly to your bank account, every Friday without exception</span></li>
+        </ul>
+
+        <button class="btn btn-gold" onclick="openModal()" data-aos data-d="4">Apply to Join →</button>
+
+        <div class="partner-row" data-aos data-d="5">
+          <div class="p-badge">VPC</div>
+          <div class="p-badge">BWC</div>
+          <div class="p-badge">PCC</div>
+          <div class="p-badge">AEC</div>
+          <div class="p-badge">+376</div>
+        </div>
+      </div>
+
+      <div class="fp-illus" data-aos data-d="2">
+        <div class="illus-bg"></div>
+        <div class="ic ic-1">
+          <div class="ic-lbl">Monthly Revenue</div>
+          <div class="ic-val gold">€4,820</div>
+          <div class="ic-bar"><div class="ic-fill" style="width:78%"></div></div>
+          <div style="font-size:.7rem;color:var(--success);margin-top:7px;font-weight:700">↑ 40% vs last month</div>
+        </div>
+        <div class="ic ic-2">
+          <div class="ic-lbl">New Orders Today</div>
+          <div class="ic-val">12</div>
+          <div class="ic-mini-bars">
+            <div style="height:55%;opacity:.4"></div>
+            <div style="height:80%;opacity:.6"></div>
+            <div style="height:60%;opacity:.4"></div>
+            <div style="height:100%"></div>
+            <div style="height:70%;opacity:.6"></div>
+            <div style="height:85%;opacity:.8"></div>
+          </div>
+        </div>
+        <div class="ic ic-3">
+          <div class="ic-lbl">Your Rating</div>
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="ic-val">4.9</div>
+            <span style="color:var(--gold);font-size:1.1rem">★★★★★</span>
+          </div>
+          <div style="font-size:.74rem;color:var(--gray-400);margin-top:4px">from 847 customer reviews</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ PRICING ══════════ -->
+<section id="pricing" aria-label="Commission pricing">
+  <div class="container">
+    <div class="section-head">
+      <p class="label" data-aos>Transparent Fees</p>
+      <h2 class="section-title" data-aos data-d="1">How Commission Works</h2>
+      <p class="section-sub" data-aos data-d="2">Straightforward pricing for providers. Customers always pay €0 in booking fees.</p>
+    </div>
+
+    <div class="ptable-wrap" data-aos data-d="1">
+      <table class="ptable" role="table">
+        <thead>
+          <tr>
+            <th scope="col">Plan</th>
+            <th scope="col">Commission</th>
+            <th scope="col">Order Limit</th>
+            <th scope="col">Features Included</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="plan-nm">Starter</span></td>
+            <td><span class="comm-rate">18%</span></td>
+            <td>Up to 50 orders/month</td>
+            <td>Basic dashboard · Email support · Standard listing</td>
+          </tr>
+          <tr class="feat">
+            <td><span class="plan-nm">Growth</span></td>
+            <td><span class="comm-rate">15%</span></td>
+            <td>Unlimited</td>
+            <td>Full dashboard · Priority support · Analytics · Reviews management</td>
+          </tr>
+          <tr>
+            <td><span class="plan-nm">Premium</span></td>
+            <td><span class="comm-rate">12%</span></td>
+            <td>Unlimited</td>
+            <td>Priority listing · Advanced analytics · Dedicated account manager · Promo credits</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="p-note" data-aos data-d="2">🎉 <strong>Customers always pay €0 in booking fees.</strong> All commission applies to service providers only, deducted automatically at time of weekly payout.</p>
+  </div>
+</section>
+
+<!-- ══════════ TESTIMONIALS ══════════ -->
+<section id="testimonials" aria-label="Customer reviews">
+  <div class="container">
+    <div class="section-head">
+      <p class="label" data-aos>Reviews</p>
+      <h2 class="section-title" data-aos data-d="1">Trusted Across Europe</h2>
+      <p class="section-sub" data-aos data-d="2">Real stories from customers and providers who rely on CleanValet every day.</p>
+    </div>
+    <div class="testi-grid">
+
+      <article class="tcard" data-aos data-d="1">
+        <span class="ttype ttype-c">Customer</span>
+        <div class="qmark" aria-hidden="true">"</div>
+        <p class="ttext">Picked up Monday, back Tuesday. Immaculate. Every piece perfectly pressed, including my silk blouse. I've tried every service in Paris and CleanValet is the only one I genuinely trust.</p>
+        <div class="tauthor">
+          <div class="tav" style="background:linear-gradient(135deg,#4a90e2,#7b68ee)" aria-label="Sophie M.">SM</div>
+          <div>
+            <div class="tname">Sophie M.</div>
+            <div class="tloc">📍 Paris, France</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="tcard" data-aos data-d="2">
+        <span class="ttype ttype-c">Customer</span>
+        <div class="qmark" aria-hidden="true">"</div>
+        <p class="ttext">Finally a service that handles cashmere properly. My coats came back looking brand new. The white-glove packaging alone is worth it. I will never visit a high-street cleaner again.</p>
+        <div class="tauthor">
+          <div class="tav" style="background:linear-gradient(135deg,#c0392b,#e74c3c)" aria-label="Marco T.">MT</div>
+          <div>
+            <div class="tname">Marco T.</div>
+            <div class="tloc">📍 Milan, Italy</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="tcard" data-aos data-d="3">
+        <span class="ttype ttype-p">Provider</span>
+        <div class="qmark" aria-hidden="true">"</div>
+        <p class="ttext">Joined 6 months ago. Revenue up 40%. The dashboard is genuinely simple, payouts arrive every Friday, and the customer quality is excellent. Best business decision I've made in years.</p>
+        <div class="tauthor">
+          <div class="tav" style="background:linear-gradient(135deg,#059669,#34d399)" aria-label="Lars K.">LK</div>
+          <div>
+            <div class="tname">Lars K.</div>
+            <div class="tloc">📍 Copenhagen, Denmark</div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ORDER TRACKING ══════════ -->
+<section id="tracking" aria-label="Track your order">
+  <div class="container">
+    <div class="section-head">
+      <p class="label" data-aos>Live Updates</p>
+      <h2 class="section-title" data-aos data-d="1">Track Your Order</h2>
+      <p class="section-sub" data-aos data-d="2">Enter your order number to see exactly where your garments are right now — from pickup to your door.</p>
+    </div>
+
+    <div class="trk-search" data-aos data-d="3">
+      <input type="text" id="trkInput" placeholder="Enter order number e.g. CV-2025-003" aria-label="Order number" maxlength="20" autocomplete="off">
+      <button class="btn btn-gold" onclick="trackOrder()">Track →</button>
+    </div>
+    <p class="trk-hint" data-aos data-d="4">
+      Try demo codes:
+      <span onclick="demoTrack('CV-2025-001')">CV-2025-001</span>,
+      <span onclick="demoTrack('CV-2025-003')">CV-2025-003</span>,
+      <span onclick="demoTrack('CV-2025-005')">CV-2025-005</span>
+    </p>
+
+    <!-- Result panel (populated by JS) -->
+    <div class="trk-result" id="trkResult" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ══════════ DUAL CTA ══════════ -->
+<section id="dual-cta" aria-label="Sign up">
+  <div class="cta-pnl navy">
+    <span class="pnl-lbl">For Customers</span>
+    <h2>Clean Clothes,<br>Zero Effort</h2>
+    <p>Book your first pickup in under 60 seconds. No subscription, no commitment — premium cleaning on demand.</p>
+    <button class="btn" onclick="toast('Creating your customer account…','✨')">Create Free Account</button>
+  </div>
+  <div class="cta-pnl gold">
+    <span class="pnl-lbl">For Dry Cleaners</span>
+    <h2>More Orders,<br>Less Marketing</h2>
+    <p>Join 380+ providers earning more with CleanValet. Keep 85% of every order with flexible, risk-free terms.</p>
+    <button class="btn" onclick="openModal()">Apply as Provider →</button>
+  </div>
+</section>
+</main>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a href="#" class="logo" aria-label="CleanValet home">
+          <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 3.5C14 3.5 10.5 5.2 10.5 8C10.5 10.2 12.1 11.5 14 11.5C15.9 11.5 17.5 10.2 17.5 8C17.5 5.2 14 3.5 14 3.5Z" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 11.5L3.5 20.5C2.5 21.5 2.5 22.5 3.5 23.5H24.5C25.5 22.5 25.5 21.5 24.5 20.5L14 11.5Z" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="14" cy="7.5" r="1.2" fill="#C9A84C"/>
+          </svg>
+          Clean<span class="logo-gold">Valet</span>
+        </a>
+        <p class="foot-tagline">Europe's Premium Dry Cleaning Marketplace. Connecting discerning customers with vetted professionals across 28 cities and growing.</p>
+        <p class="eco-line">🌿 Carbon-neutral deliveries in partnership with local eco-couriers across all European cities.</p>
+      </div>
+
+      <div class="foot-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="admin.html" style="color:var(--gold)!important">⚙ Admin Panel</a></li>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+
+      <div class="foot-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="#">Dry Cleaning</a></li>
+          <li><a href="#">Wash &amp; Fold</a></li>
+          <li><a href="#">Shirt Laundry</a></li>
+          <li><a href="#">Ironing</a></li>
+          <li><a href="#">Wedding Dress</a></li>
+        </ul>
+      </div>
+
+      <div class="foot-col">
+        <h4>For Providers</h4>
+        <ul>
+          <li><a href="#">Apply to Join</a></li>
+          <li><a href="#">Pricing Plans</a></li>
+          <li><a href="#">Dashboard Login</a></li>
+          <li><a href="#">Success Stories</a></li>
+          <li><a href="#">Provider FAQ</a></li>
+        </ul>
+      </div>
+
+      <div class="foot-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">GDPR</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot-bot">
+      <p class="foot-copy">© 2025 CleanValet. All rights reserved. &nbsp;·&nbsp; www.cleanvalet.eu</p>
+      <div class="socials" aria-label="Social media">
+        <a href="#" class="soc" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg>
+        </a>
+        <a href="#" class="soc" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <a href="#" class="soc" aria-label="X / Twitter">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="#" class="soc" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════ MODAL ══════════ -->
+<div class="overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2 id="mTitle">Apply as a Provider</h2>
+        <p>Join 380+ partners earning more with CleanValet</p>
+      </div>
+      <button class="modal-x" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <form class="mform" id="mForm" novalidate>
+      <div class="fg" id="fg-biz">
+        <label for="m-biz">Business Name *</label>
+        <input type="text" id="m-biz" placeholder="e.g. Premium Cleaners Berlin" required>
+      </div>
+      <div class="fg" id="fg-city">
+        <label for="m-city">City *</label>
+        <input type="text" id="m-city" placeholder="e.g. Berlin, Germany" required>
+      </div>
+      <div class="fg" id="fg-svcs">
+        <label for="m-svcs">Services Offered *</label>
+        <select id="m-svcs" required>
+          <option value="">Select primary service…</option>
+          <option>Dry Cleaning</option>
+          <option>Wash &amp; Fold</option>
+          <option>Ironing &amp; Pressing</option>
+          <option>Specialist / Bridal</option>
+          <option>All of the above</option>
+        </select>
+      </div>
+      <div class="fg" id="fg-email">
+        <label for="m-email">Email Address *</label>
+        <input type="email" id="m-email" placeholder="you@yourbusiness.com" required>
+      </div>
+      <div class="fg" id="fg-phone">
+        <label for="m-phone">Phone Number *</label>
+        <input type="tel" id="m-phone" placeholder="+49 30 0000 0000" required>
+      </div>
+      <div class="fg">
+        <label for="m-msg">Tell us about your business</label>
+        <textarea id="m-msg" placeholder="Years in operation, specialties, weekly capacity…"></textarea>
+      </div>
+      <button type="submit" class="btn btn-gold">Submit Application →</button>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════ TOAST ══════════ -->
+<div class="toast" id="toastEl" role="alert" aria-live="polite">
+  <span class="toast-ico" id="toastIco">✓</span>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+/* ── NAV SCROLL ── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+}, {passive:true});
+
+/* ── HAMBURGER ── */
+const burger = document.getElementById('burger');
+const mob = document.getElementById('mobMenu');
+burger.addEventListener('click', () => {
+  const open = mob.classList.toggle('open');
+  burger.classList.toggle('open', open);
+  burger.setAttribute('aria-expanded', open);
+});
+function closeMob(){
+  mob.classList.remove('open');
+  burger.classList.remove('open');
+  burger.setAttribute('aria-expanded','false');
+}
+
+/* ── SMOOTH SCROLL ── */
+function smoothScrollTo(id){
+  const el = document.querySelector(id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const tgt = document.querySelector(a.getAttribute('href'));
+    if(tgt){ e.preventDefault(); const top = tgt.getBoundingClientRect().top + window.scrollY - 76; window.scrollTo({top, behavior:'smooth'}); }
+  });
+});
+
+/* ── DATE MIN ── */
+document.getElementById('pd').min = new Date().toISOString().split('T')[0];
+
+/* ── BOOKING FORM ── */
+document.getElementById('bookForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const pc = document.getElementById('pc').value.trim();
+  const sv = document.getElementById('svc').value;
+  const pd = document.getElementById('pd').value;
+  if(!pc){ toast('Please enter your postcode or city','📍'); document.getElementById('pc').focus(); return; }
+  if(!sv){ toast('Please select a service','🧺'); document.getElementById('svc').focus(); return; }
+  if(!pd){ toast('Please choose a pickup date','📅'); document.getElementById('pd').focus(); return; }
+  const btn = e.target.querySelector('button[type=submit]');
+  const orig = btn.textContent;
+  btn.textContent = 'Searching…'; btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = orig; btn.disabled = false;
+    toast('We found 8 cleaners near you! ✓','🎉');
+    setTimeout(() => document.getElementById('providers').scrollIntoView({behavior:'smooth'}), 900);
+  }, 1300);
+});
+
+/* ── TABS ── */
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => { b.classList.remove('on'); b.setAttribute('aria-selected','false'); });
+    btn.classList.add('on'); btn.setAttribute('aria-selected','true');
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.svc-card').forEach(c => {
+      c.classList.toggle('gone', tab !== 'all' && !(c.dataset.cat || '').includes(tab));
+    });
+  });
+});
+
+/* ── SCROLL ANIMATIONS ── */
+const aObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); aObs.unobserve(e.target); } });
+}, {threshold:.1, rootMargin:'0px 0px -32px 0px'});
+document.querySelectorAll('[data-aos]').forEach(el => aObs.observe(el));
+
+/* ── STAT COUNTERS ── */
+let counted = false;
+const sObs = new IntersectionObserver(entries => {
+  if(entries[0].isIntersecting && !counted){
+    counted = true;
+    document.querySelectorAll('.stat-n[data-target]').forEach(el => {
+      const tgt = +el.dataset.target;
+      const sfx = el.dataset.sfx || '';
+      const dec = el.dataset.dec === '1';
+      const fmt = el.dataset.fmt === 'k';
+      const dur = 2000, fps = 60, steps = dur / (1000/fps);
+      let cur = 0;
+      const inc = tgt / steps;
+      const id = setInterval(() => {
+        cur = Math.min(cur + inc, tgt);
+        let disp;
+        if(dec) disp = (cur/10).toFixed(1);
+        else if(fmt && cur >= 1000) disp = (cur/1000).toFixed(cur >= 10000 ? 0 : 1).replace(/\.0$/,'') + 'k';
+        else disp = Math.floor(cur).toLocaleString();
+        el.textContent = disp + sfx;
+        if(cur >= tgt) clearInterval(id);
+      }, 1000/fps);
+    });
+    sObs.disconnect();
+  }
+}, {threshold:.4});
+const statsEl = document.getElementById('stats');
+if(statsEl) sObs.observe(statsEl);
+
+/* ── MODAL ── */
+function openModal(){
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const f = document.getElementById('m-biz');
+    if(f) f.focus();
+  }));
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('modal').addEventListener('click', e => { if(e.target === e.currentTarget) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+document.getElementById('mForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const required = [
+    {id:'m-biz', fg:'fg-biz'},
+    {id:'m-city', fg:'fg-city'},
+    {id:'m-svcs', fg:'fg-svcs'},
+    {id:'m-email', fg:'fg-email'},
+    {id:'m-phone', fg:'fg-phone'}
+  ];
+  let valid = true;
+  required.forEach(r => {
+    const el = document.getElementById(r.id);
+    const fg = document.getElementById(r.fg);
+    if(!el.value.trim()){ valid = false; el.style.borderColor='#ef4444'; el.addEventListener('input',()=>el.style.borderColor='',{once:true}); }
+  });
+  if(!valid){ toast('Please fill in all required fields','⚠️'); return; }
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.textContent = 'Submitting…'; btn.disabled = true;
+  setTimeout(() => {
+    closeModal();
+    e.target.reset();
+    btn.textContent = 'Submit Application →'; btn.disabled = false;
+    toast("Application received! We'll be in touch within 48 hours.",'✅');
+  }, 1600);
+});
+
+/* ── TOAST ── */
+let tTimer;
+function toast(msg, ico = '✓'){
+  const el = document.getElementById('toastEl');
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIco').textContent = ico;
+  clearTimeout(tTimer);
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+  tTimer = setTimeout(() => el.classList.remove('show'), 4200);
+}
+
+/* ── ORDER TRACKING ── */
+function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');}
+
+const ORDERS = {
+  'CV-2025-001': {
+    stage: 5, service: 'Dry Cleaning', items: '3 items', provider: 'Vienna Premium', date: '2 May 2025',
+    eta: 'Delivered — 2 May, 14:32', times: ['2 May, 08:00','2 May, 09:15','2 May, 10:30','2 May, 12:50','2 May, 14:32']
+  },
+  'CV-2025-002': {
+    stage: 4, service: 'Wash & Fold', items: '1 bag', provider: 'Berlin Wash Co.', date: '2 May 2025',
+    eta: 'Est. delivery by 18:00 today', times: ['2 May, 09:00','2 May, 10:20','2 May, 11:45','2 May, 15:10','—']
+  },
+  'CV-2025-003': {
+    stage: 3, service: 'Shirt Laundry', items: '5 shirts', provider: 'Berlin Wash Co.', date: '2 May 2025',
+    eta: 'Est. delivery by 19:00 today', times: ['2 May, 10:00','2 May, 11:30','In progress…','—','—']
+  },
+  'CV-2025-004': {
+    stage: 2, service: 'Duvet & Bedding', items: '2 duvets', provider: 'Amsterdam EcoClean', date: '2 May 2025',
+    eta: 'Est. delivery by 3 May, 12:00', times: ['2 May, 13:00','2 May, 14:20','—','—','—']
+  },
+  'CV-2025-005': {
+    stage: 1, service: 'Wedding Dress', items: '1 gown', provider: 'Paris Couture Care', date: '2 May 2025',
+    eta: 'Est. pickup 3 May between 09:00–11:00', times: ['2 May, 16:45','—','—','—','—']
+  }
+};
+
+const STAGES = [
+  { icon: '✅', name: 'Order Confirmed',       msg: 'Your order has been confirmed and assigned to a provider.' },
+  { icon: '🚗', name: 'Picked Up',             msg: 'Your garments have been collected from your door.' },
+  { icon: '🧺', name: 'Being Cleaned',         msg: 'Your items are currently being professionally cleaned.' },
+  { icon: '🔍', name: 'Quality Check',         msg: 'Every item is inspected and packaged with care.' },
+  { icon: '🚚', name: 'Out for Delivery',      msg: 'Your clean garments are on their way back to you.' }
+];
+
+const PILLS = ['pill-confirmed','pill-pickup','pill-cleaning','pill-delivery','pill-delivered'];
+const PILL_LABELS = ['Confirmed','Picked Up','Cleaning','Out for Delivery','Delivered'];
+
+function demoTrack(code){
+  document.getElementById('trkInput').value = code;
+  trackOrder();
+}
+
+function trackOrder(){
+  const raw = document.getElementById('trkInput').value.trim().toUpperCase();
+  const panel = document.getElementById('trkResult');
+  if(!raw){ toast('Please enter an order number','📦'); return; }
+
+  panel.classList.remove('show');
+
+  setTimeout(() => {
+    const order = ORDERS[raw];
+    panel.innerHTML = order ? buildResult(raw, order) : buildNotFound(raw);
+    panel.classList.add('show');
+
+    if(order){
+      // animate progress fill after paint
+      requestAnimationFrame(() => {
+        const fill = document.getElementById('trkFill');
+        if(fill){
+          const pct = Math.min(((order.stage - 1) / 4) * 100, 100);
+          fill.style.width = `calc(${pct}% - ${pct > 0 ? 40 : 0}px)`;
+        }
+      });
+    }
+  }, 600);
+}
+
+function buildResult(id, o){
+  const stageIdx = o.stage - 1; // 0-based
+  const current = STAGES[stageIdx];
+  const isDelivered = o.stage === 5;
+
+  // Build step dots
+  const dots = STAGES.map((s, i) => {
+    let cls, icon;
+    if(i < stageIdx){       cls = 'done';    icon = '✓'; }
+    else if(i === stageIdx){ cls = 'active';  icon = s.icon; }
+    else {                   cls = 'pending'; icon = s.icon; }
+
+    const nameCls = i < stageIdx ? 'done-txt' : i === stageIdx ? 'active-txt' : '';
+    const timeStr = o.times[i] || '—';
+    return `
+      <div class="trk-step">
+        <div class="trk-dot ${cls}" aria-label="${s.name}">${i < stageIdx ? '✓' : s.icon}</div>
+        <div class="trk-step-label">
+          <span class="sname ${nameCls}">${s.name}</span>
+          <span class="stime">${timeStr}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  const progressPct = (stageIdx / 4) * 100;
+
+  return `
+    <div class="trk-card">
+      <div class="trk-card-top">
+        <div>
+          <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:4px">Order Number</div>
+          <div class="trk-order-num">${id}</div>
+        </div>
+        <span class="trk-status-pill ${PILLS[stageIdx]}">${PILL_LABELS[stageIdx]}</span>
+      </div>
+      <div class="trk-meta">
+        <div class="trk-meta-item"><label>Service</label><span>${o.service}</span></div>
+        <div class="trk-meta-item"><label>Items</label><span>${o.items}</span></div>
+        <div class="trk-meta-item"><label>Provider</label><span>${o.provider}</span></div>
+        <div class="trk-meta-item"><label>Order Date</label><span>${o.date}</span></div>
+      </div>
+    </div>
+
+    <div class="trk-timeline">
+      <div class="trk-tl-title">Delivery Progress</div>
+      <div class="trk-progress-bar">
+        <div class="trk-progress-fill" id="trkFill" style="width:0"></div>
+        ${dots}
+      </div>
+      <div class="trk-live" style="margin-bottom:16px">
+        <div class="trk-live-ico">${current.icon}</div>
+        <div class="trk-live-txt">
+          <h4>${current.name}</h4>
+          <p>${current.msg}</p>
+        </div>
+      </div>
+      <div class="trk-eta">
+        <div class="trk-eta-left">
+          <span>${isDelivered ? 'Delivered at' : 'Estimated Delivery'}</span>
+          <strong>${o.eta}</strong>
+        </div>
+        <div class="trk-eta-right">
+          <span class="live-dot"></span>
+          <span>${isDelivered ? 'Completed' : 'Live tracking active'}</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildNotFound(id){
+  return `
+    <div class="trk-card">
+      <div class="trk-notfound">
+        <div class="nf-ico">🔍</div>
+        <h3>Order not found</h3>
+        <p>We couldn't find an order matching <strong style="color:var(--gold)">${esc(id)}</strong>.<br>
+        Please check your order confirmation email and try again.<br><br>
+        <span style="font-size:.78rem;opacity:.6">Demo codes: CV-2025-001 · CV-2025-003 · CV-2025-005</span></p>
+      </div>
+    </div>`;
+}
+
+// Allow Enter key in tracking input
+document.getElementById('trkInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') trackOrder();
+});
+
+/* ── INIT: animate items already in viewport ── */
+window.addEventListener('load', () => {
+  document.querySelectorAll('[data-aos]').forEach(el => {
+    if(el.getBoundingClientRect().top < window.innerHeight * .92) el.classList.add('visible');
+  });
+});
+</script>
+</body>
+</html>
