@@ -32,6 +32,20 @@ CleanValet is designed as a multi-vendor marketplace where customers can discove
 - JavaScript
 - Responsive Design
 
+## Screenshots
+
+### Homepage
+
+![Homepage](images/homepage.png)
+
+### Admin Dashboard
+
+![Admin Dashboard](images/admin-dashboard.png)
+
+### Provider Management
+
+![Provider Management](images/provider-management.png)
+
 ## Business Model
 
 Customer → CleanValet Platform → Service Provider
